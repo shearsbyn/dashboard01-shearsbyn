@@ -82,6 +82,11 @@ const CONFIG = {
     windowDays: 30           // window to compute weight + strength change
   },
 
+  // RapidAPI key for the ExerciseDB exercise library.
+  // Sign up free at: https://rapidapi.com/justin-WFnsXH_t6/api/exercisedb
+  // Paste your key between the quotes below, then save.
+  exerciseDbKey: "",
+
   // Starter exercise list. Each one needs:
   //   name        — what shows in the dropdown
   //   gym         — one of the gym ids above, or "both"
@@ -1321,6 +1326,132 @@ img, video, canvas, svg { max-width: 100%; }
   .wt-compare-meta-line { font-size: 11px; }
 }
 
+/* ---- Exercise Library modal ---- */
+.lib-modal-bg {
+  position: fixed; inset: 0; background: rgba(0,0,0,0.72); z-index: 200;
+  display: none; align-items: flex-end; justify-content: center;
+  padding: 0;
+}
+.lib-modal-bg.show { display: flex; }
+.lib-modal {
+  background: var(--bg-card);
+  border-radius: 20px 20px 0 0;
+  width: 100%; max-width: 540px;
+  max-height: 92vh;
+  display: flex; flex-direction: column;
+  overflow: hidden;
+}
+.lib-header {
+  padding: 18px 18px 12px;
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+.lib-header-row {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 12px;
+}
+.lib-title {
+  font-family: var(--font-display); font-size: 17px; font-weight: 600;
+  color: var(--text-1); letter-spacing: -0.02em;
+}
+.lib-close {
+  width: 30px; height: 30px; border-radius: 50%;
+  background: var(--fill-3); border: none; color: var(--text-2);
+  font-size: 16px; cursor: pointer; display: flex; align-items: center; justify-content: center;
+}
+.lib-search {
+  display: flex; align-items: center; gap: 8px;
+  background: var(--fill-2); border: 1px solid var(--border);
+  border-radius: 10px; padding: 0 12px;
+}
+.lib-search-icon { color: var(--text-3); font-size: 14px; flex-shrink: 0; }
+.lib-search input {
+  flex: 1; background: none; border: none; outline: none;
+  color: var(--text-1); font-family: inherit; font-size: 14px;
+  padding: 10px 0;
+}
+.lib-search input::placeholder { color: var(--text-4); }
+.lib-filters {
+  display: flex; gap: 6px; overflow-x: auto; padding: 10px 18px 4px;
+  scrollbar-width: none; flex-shrink: 0;
+}
+.lib-filters::-webkit-scrollbar { display: none; }
+.lib-pill {
+  flex-shrink: 0; padding: 5px 12px;
+  border-radius: 999px; border: 1px solid var(--border);
+  background: var(--fill-2); color: var(--text-2);
+  font-size: 12px; font-weight: 600; cursor: pointer;
+  text-transform: capitalize; white-space: nowrap;
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
+}
+.lib-pill.active {
+  background: var(--brand-soft); border-color: var(--brand-line);
+  color: var(--brand-2);
+}
+.lib-body {
+  flex: 1; overflow-y: auto; padding: 10px 14px 20px;
+}
+.lib-status {
+  padding: 32px 16px; text-align: center;
+  font-size: 13px; color: var(--text-3); line-height: 1.5;
+}
+.lib-grid {
+  display: flex; flex-direction: column; gap: 8px;
+}
+.lib-card {
+  display: flex; align-items: center; gap: 12px;
+  background: var(--fill-1); border: 1px solid var(--border);
+  border-radius: 12px; padding: 10px 12px;
+  cursor: pointer; transition: background 0.15s, border-color 0.15s;
+}
+.lib-card:hover, .lib-card:active { background: var(--fill-3); border-color: var(--border-strong); }
+.lib-card-img {
+  width: 52px; height: 52px; border-radius: 8px;
+  object-fit: cover; background: var(--fill-3); flex-shrink: 0;
+}
+.lib-card-img-placeholder {
+  width: 52px; height: 52px; border-radius: 8px;
+  background: var(--fill-3); flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 22px;
+}
+.lib-card-info { flex: 1; min-width: 0; }
+.lib-card-name {
+  font-size: 14px; font-weight: 600; color: var(--text-1);
+  text-transform: capitalize; white-space: nowrap;
+  overflow: hidden; text-overflow: ellipsis;
+  margin-bottom: 3px;
+}
+.lib-card-meta {
+  font-size: 11px; color: var(--text-3);
+  text-transform: capitalize;
+}
+.lib-card-add {
+  width: 30px; height: 30px; border-radius: 8px;
+  background: var(--brand-soft); border: 1px solid var(--brand-line);
+  color: var(--brand-2); font-size: 18px; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0; transition: background 0.15s;
+}
+.lib-card-add:hover { background: var(--brand-line); }
+.lib-no-key {
+  margin: 16px; padding: 16px; border-radius: 12px;
+  background: var(--fill-2); border: 1px solid var(--border);
+  font-size: 13px; color: var(--text-2); line-height: 1.55;
+}
+.lib-no-key code {
+  background: var(--fill-3); padding: 1px 5px; border-radius: 4px;
+  font-family: var(--font-mono); font-size: 11px; color: var(--text-1);
+}
+.lib-load-more {
+  width: 100%; margin-top: 10px; padding: 11px;
+  background: var(--fill-2); border: 1px solid var(--border);
+  border-radius: 10px; color: var(--text-2); font-size: 13px;
+  font-family: inherit; cursor: pointer;
+  transition: background 0.15s;
+}
+.lib-load-more:hover { background: var(--fill-3); }
+
 .hidden { display: none !important; }
 
 /* --- Patron display type --- */
@@ -1544,6 +1675,9 @@ img, video, canvas, svg { max-width: 100%; }
         <button class="po-btn-icon" id="addExBtn" title="Add exercise" aria-label="Add">
           <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
         </button>
+        <button class="po-btn-icon" id="libBtn" title="Browse exercise library" aria-label="Library">
+          <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+        </button>
         <button class="po-btn-icon" id="editExBtn" title="Edit / delete" aria-label="Edit">
           <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5z"/></svg>
         </button>
@@ -1712,6 +1846,26 @@ img, video, canvas, svg { max-width: 100%; }
       <button class="po-btn-primary" id="exModalSave">Save</button>
     </div>
     <span class="po-delete-link" id="exDelete" style="display:none">Delete this exercise</span>
+  </div>
+</div>
+
+<!-- Exercise library modal -->
+<div class="lib-modal-bg" id="libModalBg">
+  <div class="lib-modal">
+    <div class="lib-header">
+      <div class="lib-header-row">
+        <span class="lib-title">Exercise Library</span>
+        <button class="lib-close" id="libClose" aria-label="Close">✕</button>
+      </div>
+      <div class="lib-search">
+        <span class="lib-search-icon">🔍</span>
+        <input type="text" id="libSearch" placeholder="Search exercises…" autocomplete="off" autocorrect="off">
+      </div>
+    </div>
+    <div class="lib-filters" id="libFilters"></div>
+    <div class="lib-body" id="libBody">
+      <div class="lib-status" id="libStatus">Loading…</div>
+    </div>
   </div>
 </div>
 
@@ -3640,6 +3794,233 @@ img, video, canvas, svg { max-width: 100%; }
   window.addEventListener('beforeunload', pcFlushPushOnUnload);
   document.addEventListener('visibilitychange', () => {
     if (document.hidden) pcFlushPushOnUnload();
+  });
+})();
+</script>
+
+<script>
+// ============================================================
+// EXERCISE LIBRARY  (ExerciseDB via RapidAPI)
+// Set CONFIG.exerciseDbKey to your RapidAPI key to enable.
+// Results are cached in localStorage for 24 h to preserve the
+// free-tier quota (10 req/day).
+// ============================================================
+(function () {
+  const API_BASE   = 'https://exercisedb.p.rapidapi.com';
+  const CACHE_KEY  = 'po_exdb_cache';
+  const CACHE_TTL  = 86400 * 1000; // 24 h in ms
+  const PAGE_SIZE  = 20;
+
+  const BODY_PARTS = [
+    'back','cardio','chest','lower arms','lower legs',
+    'neck','shoulders','upper arms','upper legs','waist'
+  ];
+
+  let libBodyPart  = BODY_PARTS[2]; // default: chest
+  let libOffset    = 0;
+  let libResults   = [];
+  let libSearchQ   = '';
+  let libSearchTimer = null;
+
+  // ---- cache helpers ----
+  function cacheGet(key) {
+    try {
+      const raw = localStorage.getItem(CACHE_KEY);
+      if (!raw) return null;
+      const store = JSON.parse(raw);
+      const entry = store[key];
+      if (!entry) return null;
+      if (Date.now() - entry.ts > CACHE_TTL) return null;
+      return entry.data;
+    } catch (_) { return null; }
+  }
+  function cacheSet(key, data) {
+    try {
+      const raw = localStorage.getItem(CACHE_KEY);
+      const store = raw ? JSON.parse(raw) : {};
+      store[key] = { ts: Date.now(), data };
+      localStorage.setItem(CACHE_KEY, JSON.stringify(store));
+    } catch (_) {}
+  }
+
+  // ---- fetch wrapper ----
+  async function apiFetch(path) {
+    const key = CONFIG.exerciseDbKey;
+    const res = await fetch(API_BASE + path, {
+      headers: {
+        'X-RapidAPI-Key':  key,
+        'X-RapidAPI-Host': 'exercisedb.p.rapidapi.com'
+      }
+    });
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    return res.json();
+  }
+
+  // ---- render helpers ----
+  function setStatus(html) {
+    const body = document.getElementById('libBody');
+    body.innerHTML = '<div class="lib-status">' + html + '</div>';
+  }
+
+  function renderCards(exercises, append) {
+    const body = document.getElementById('libBody');
+    if (!append) body.innerHTML = '';
+
+    if (!exercises.length && !append) {
+      setStatus('No exercises found.');
+      return;
+    }
+
+    let grid = body.querySelector('.lib-grid');
+    if (!grid) {
+      grid = document.createElement('div');
+      grid.className = 'lib-grid';
+      body.appendChild(grid);
+    }
+
+    exercises.forEach(ex => {
+      const card = document.createElement('div');
+      card.className = 'lib-card';
+
+      const imgHtml = ex.gifUrl
+        ? '<img class="lib-card-img" src="' + ex.gifUrl + '" alt="" loading="lazy">'
+        : '<div class="lib-card-img-placeholder">💪</div>';
+
+      card.innerHTML = imgHtml
+        + '<div class="lib-card-info">'
+        +   '<div class="lib-card-name">' + ex.name + '</div>'
+        +   '<div class="lib-card-meta">' + (ex.target || '') + (ex.equipment ? ' · ' + ex.equipment : '') + '</div>'
+        + '</div>'
+        + '<button class="lib-card-add" aria-label="Add to tracker">+</button>';
+
+      card.querySelector('.lib-card-add').addEventListener('click', (e) => {
+        e.stopPropagation();
+        prefillAndOpen(ex);
+      });
+      card.addEventListener('click', () => prefillAndOpen(ex));
+      grid.appendChild(card);
+    });
+
+    // Load-more button
+    const existing = body.querySelector('.lib-load-more');
+    if (existing) existing.remove();
+    if (exercises.length === PAGE_SIZE) {
+      const btn = document.createElement('button');
+      btn.className = 'lib-load-more';
+      btn.textContent = 'Load more…';
+      btn.addEventListener('click', () => { libOffset += PAGE_SIZE; loadPage(true); });
+      body.appendChild(btn);
+    }
+  }
+
+  function prefillAndOpen(ex) {
+    // Close library, then open the add-exercise modal pre-filled
+    document.getElementById('libModalBg').classList.remove('show');
+    // openExModal is defined in the outer IIFE — call via the existing add button path
+    // but first seed the name input
+    const nameInput = document.getElementById('exName');
+    if (nameInput) nameInput.value = capitalise(ex.name);
+    document.getElementById('addExBtn').click();
+    // After the modal opens, set the name (click may clear it)
+    setTimeout(() => {
+      const ni = document.getElementById('exName');
+      if (ni) ni.value = capitalise(ex.name);
+    }, 80);
+  }
+
+  function capitalise(s) {
+    return s.charAt(0).toUpperCase() + s.slice(1);
+  }
+
+  // ---- load data ----
+  async function loadPage(append) {
+    if (!CONFIG.exerciseDbKey) {
+      document.getElementById('libBody').innerHTML =
+        '<div class="lib-no-key">'
+        + 'Add your RapidAPI key to <code>CONFIG.exerciseDbKey</code> at the top of gym.html to unlock the exercise library.'
+        + '<br><br>Sign up free (10 req/day) at <strong>rapidapi.com</strong> → search <em>ExerciseDB</em>.'
+        + '</div>';
+      return;
+    }
+
+    if (!append) {
+      libOffset = 0;
+      setStatus('Loading…');
+    }
+
+    const cacheKeyStr = libSearchQ
+      ? 'search:' + libSearchQ
+      : 'part:' + libBodyPart + ':' + libOffset;
+
+    const cached = cacheGet(cacheKeyStr);
+    if (cached) {
+      libResults = append ? libResults.concat(cached) : cached;
+      renderCards(cached, append);
+      return;
+    }
+
+    try {
+      let path;
+      if (libSearchQ) {
+        path = '/exercises?name=' + encodeURIComponent(libSearchQ) + '&limit=' + PAGE_SIZE + '&offset=' + libOffset;
+      } else {
+        path = '/exercises/bodyPart/' + encodeURIComponent(libBodyPart) + '?limit=' + PAGE_SIZE + '&offset=' + libOffset;
+      }
+      const data = await apiFetch(path);
+      cacheSet(cacheKeyStr, data);
+      libResults = append ? libResults.concat(data) : data;
+      renderCards(data, append);
+    } catch (err) {
+      setStatus('Could not load exercises. Check your API key or try again later.<br><small>' + err.message + '</small>');
+    }
+  }
+
+  // ---- filter pills ----
+  function renderFilters() {
+    const el = document.getElementById('libFilters');
+    el.innerHTML = BODY_PARTS.map(bp =>
+      '<button class="lib-pill' + (bp === libBodyPart ? ' active' : '') + '" data-bp="' + bp + '">'
+      + bp + '</button>'
+    ).join('');
+    el.querySelectorAll('.lib-pill').forEach(btn => {
+      btn.addEventListener('click', () => {
+        libBodyPart = btn.dataset.bp;
+        libSearchQ = '';
+        document.getElementById('libSearch').value = '';
+        el.querySelectorAll('.lib-pill').forEach(b => b.classList.toggle('active', b.dataset.bp === libBodyPart));
+        loadPage(false);
+      });
+    });
+  }
+
+  // ---- open / close ----
+  function openLibrary() {
+    document.getElementById('libModalBg').classList.add('show');
+    renderFilters();
+    loadPage(false);
+  }
+
+  document.getElementById('libBtn').addEventListener('click', openLibrary);
+  document.getElementById('libClose').addEventListener('click', () => {
+    document.getElementById('libModalBg').classList.remove('show');
+  });
+  document.getElementById('libModalBg').addEventListener('click', e => {
+    if (e.target === document.getElementById('libModalBg'))
+      document.getElementById('libModalBg').classList.remove('show');
+  });
+
+  // ---- search debounce ----
+  document.getElementById('libSearch').addEventListener('input', e => {
+    clearTimeout(libSearchTimer);
+    libSearchQ = e.target.value.trim().toLowerCase();
+    if (!libSearchQ) {
+      // back to body-part browse
+      document.getElementById('libFilters').style.display = '';
+      libSearchTimer = setTimeout(() => loadPage(false), 100);
+    } else {
+      document.getElementById('libFilters').style.display = 'none';
+      libSearchTimer = setTimeout(() => loadPage(false), 400);
+    }
   });
 })();
 </script>
