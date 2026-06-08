@@ -734,7 +734,7 @@ function headerHtml() {
   const dayLabel = DOW[d.getDay()] + ', ' + MON[d.getMonth()] + ' ' + d.getDate();
   return ''
     + '<header class="header"><div class="headerLeft">'
-    +   '<a class="back" href="index.html"><span class="backArrow">←</span> Rowan</a>'
+    +   '<a class="back" href="index.html"><span class="backArrow">←</span> Noah</a>'
     +   '<span class="dayPill">' + dayLabel + '</span>'
     +   '<h1 class="title">Supplements</h1>'
     +   '<p class="subtitle">Daily stack · resets at 6 AM</p>'
@@ -934,7 +934,7 @@ function recsHtml() {
   if (tickerItems.length >= 2) {
     const rolled = tickerItems.concat(tickerItems);
     header += '<div class="recTicker" role="status" aria-label="Live inputs driving these picks">'
-      + '<div class="recTickerEyebrow"><span class="recTickerPulse" aria-hidden></span>Rowan · live</div>'
+      + '<div class="recTickerEyebrow"><span class="recTickerPulse" aria-hidden></span>Noah · live</div>'
       + '<div class="recTickerScroll"><div class="recTickerTrack">'
       + rolled.map(it => '<span class="recTickerItem" data-tone="' + it.tone + '">' + esc(it.text) + '</span>').join('')
       + '</div></div></div>';

@@ -130,7 +130,7 @@ body { background: var(--bg); color: var(--fg); font-family: var(--font-ui), -ap
 .themeBtnActive, .themeBtnActive:hover { background: var(--brand-soft); color: var(--fg); }
 .themeBtnActive .themeSwatch { box-shadow: 0 0 0 2px var(--bg), 0 0 0 3px var(--brand); }
 
-/* Rowan Score badge */
+/* Noah Score badge */
 .scoreBadge { display:inline-flex; align-items:center; gap: var(--space-3); padding: var(--space-3) var(--space-5); border: 1px solid var(--brand-line); border-radius: var(--radius-lg); background: var(--brand-soft); box-shadow: 0 0 36px -16px var(--brand-glow); }
 .scoreNumber { font-family: var(--font-display); font-weight: 600; font-size: clamp(2.5rem, 4.2vw, 3.25rem); line-height: 1; color: var(--brand); font-variant-numeric: tabular-nums; letter-spacing: -0.03em; }
 .scoreCol { display:flex; flex-direction:column; gap: 3px; }
@@ -286,7 +286,7 @@ body { background: var(--bg); color: var(--fg); font-family: var(--font-ui), -ap
 
 <script>
 /* ============================================================
- * SAMPLE DATA — matches the Rowan WhoopData shape.
+ * SAMPLE DATA — matches the Noah WhoopData shape.
  * Replace this object (or feed it from a real sync) once the
  * server-side WHOOP OAuth flow is wired up.
  * ============================================================ */
@@ -417,8 +417,8 @@ function tickerHtml(d) {
       + (deltaText ? '<span class="tickerDelta">' + arrow + ' ' + deltaText + '</span>' : '')
       + '</span>';
   }).join('');
-  return '<div class="ticker" role="status" aria-label="Rowan live insights">'
-    + '<div class="tickerEyebrow"><span class="tickerPulse" aria-hidden></span>Rowan · Live</div>'
+  return '<div class="ticker" role="status" aria-label="Noah live insights">'
+    + '<div class="tickerEyebrow"><span class="tickerPulse" aria-hidden></span>Noah · Live</div>'
     + '<div class="tickerScroll"><div class="tickerTrack">' + cells + '</div></div></div>';
 }
 
@@ -691,10 +691,10 @@ async function syncFitbitLive() {
  * ============================================================ */
 function headerHtml(d) {
   const badge = (connected && d && d.vitalityScore != null)
-    ? '<aside class="scoreBadge" aria-label="Rowan Score"><div class="scoreNumber">' + d.vitalityScore + '</div>'
-      + '<div class="scoreCol"><div class="scoreLabel">Rowan Score</div><div class="scoreTier">' + esc(d.vitalityTier) + '</div></div></aside>'
+    ? '<aside class="scoreBadge" aria-label="Noah Score"><div class="scoreNumber">' + d.vitalityScore + '</div>'
+      + '<div class="scoreCol"><div class="scoreLabel">Noah Score</div><div class="scoreTier">' + esc(d.vitalityTier) + '</div></div></aside>'
     : '';
-  return '<div class="header"><div class="headerTop"><a class="back" href="index.html"><span class="backArrow">←</span> Rowan</a>' + themeSegHtml() + '</div>'
+  return '<div class="header"><div class="headerTop"><a class="back" href="index.html"><span class="backArrow">←</span> Noah</a>' + themeSegHtml() + '</div>'
     + '<div class="titleRow"><div><h1 class="title">Fitness Band</h1><p class="subtitle">Recovery · sleep · strain · HRV</p></div>' + badge + '</div></div>';
 }
 
@@ -708,7 +708,7 @@ function fitbitConnectBodyHtml() {
     ? '<a class="btn btn-primary connectCta" href="/api/fitbit/login">Connect Fitbit</a>'
       + '<p class="setupNote"><strong>Setup note:</strong> needs your Fitbit API keys set on the host (see <em>FITBIT_SETUP.md</em>). Then this is a real one-tap sign-in — sleep, HRV, resting HR &amp; your bed/wake times sync automatically.</p>'
     : '<p class="setupNote"><strong>Setup note:</strong> live Fitbit sync runs on the deployed app (Vercel) with your Fitbit keys. Opened locally, use <strong>Apple Health</strong> to enter numbers by hand.</p>';
-  return '<p class="connectIntro">Bring your <em>sleep</em>, <em>HRV</em>, and <em>resting HR</em> into Rowan. One tap. Sign in with Fitbit, allow access, you’re back here.</p>'
+  return '<p class="connectIntro">Bring your <em>sleep</em>, <em>HRV</em>, and <em>resting HR</em> into Noah. One tap. Sign in with Fitbit, allow access, you’re back here.</p>'
     + '<p class="connectSub">We never see your Fitbit password. You can disconnect anytime. Fitbit has no recovery score, so that ring stays blank — everything else fills in.</p>'
     + cta;
 }
@@ -744,7 +744,7 @@ function whoopConnectBodyHtml() {
       + '<p class="setupNote"><strong>Setup note:</strong> needs your WHOOP API keys set on the host (see <em>WHOOP_SETUP.md</em>). Then this is a real one-tap sign-in — recovery, sleep &amp; strain sync automatically.</p>'
     : '<button type="button" class="btn btn-primary connectCta" data-action="connect">Preview with sample data</button>'
       + '<p class="setupNote"><strong>Setup note:</strong> live WHOOP sync runs on the deployed app. Opened locally, tap above to preview the dashboard with sample numbers — these are <em>not</em> saved into the suite.</p>';
-  return '<p class="connectIntro">Bring your <em>recovery</em>, <em>sleep</em>, and <em>strain</em> into Rowan. One tap. Sign in with Whoop, allow access, you’re back here.</p>'
+  return '<p class="connectIntro">Bring your <em>recovery</em>, <em>sleep</em>, and <em>strain</em> into Noah. One tap. Sign in with Whoop, allow access, you’re back here.</p>'
     + '<p class="connectSub">We never see your Whoop password. You can disconnect anytime.</p>'
     + cta;
 }

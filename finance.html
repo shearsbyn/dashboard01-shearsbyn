@@ -790,7 +790,7 @@ function headerHtml() {
   const themeSeg = THEMES.map(t => '<button type="button" class="themeBtn ' + (t.key === currentTheme ? 'themeBtnActive' : '') + '" data-act="theme" data-theme="' + t.key + '"><span class="themeSwatch" style="background:' + t.swatch + '"></span>' + t.label + '</button>').join('');
   const segs = CURRENCIES.map(c => '<button type="button" class="currencyBtn ' + (c === state.currency ? 'currencyBtnActive' : '') + '" data-act="currency" data-c="' + c + '">' + c + '</button>').join('');
   return '<header class="header"><div class="headerLeft">'
-    + '<a class="back" href="index.html"><span class="backArrow">←</span> Rowan</a>'
+    + '<a class="back" href="index.html"><span class="backArrow">←</span> Noah</a>'
     + '<h1 class="title">Finance</h1><p class="subtitle">Net worth · subs · orders · wishlist</p>'
     + '</div>'
     + '<div class="headerRight">'
@@ -1453,7 +1453,7 @@ function applyImport(kind, items) {
  *     output tokens are the priciest part.
  *  Robustness: parse the tool_use block; on a malformed/empty result retry
  *  once, then surface { error }. Auth errors (401/403) are not retried.
- *  NOTE: keys are server-side-only in the hosted Rowan app; this is the
+ *  NOTE: keys are server-side-only in the hosted Noah app; this is the
  *  standalone, so the call is browser-direct with the user's own key. There is
  *  no route handler / sharp / tier-gate here — those are hosted-app concerns.
  * ============================================================ */

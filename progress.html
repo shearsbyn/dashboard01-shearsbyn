@@ -27,7 +27,7 @@ img{max-width:100%;height:auto}
 <style>
 /* ============================================================
  * Progress — standalone artifact.
- * Port of Rowan /app/fitness/progress: weight log (chart +
+ * Port of Noah /app/fitness/progress: weight log (chart +
  * delta + streak), lift PR ticker, composition phase card,
  * progress photos. Vanilla CSS+JS, localStorage.
  * Weight log + photos are fully interactive. Lifts + composition
@@ -413,7 +413,7 @@ function applyTheme(name){if(!THEMES.some(t=>t.key===name))name='nocturne';curre
 function themeSegHtml(){return '<div class="themeSeg" role="radiogroup" aria-label="Theme">'+THEMES.map(t=>'<button type="button" class="themeBtn '+(t.key===currentTheme?'themeBtnActive':'')+'" data-act="theme" data-theme="'+t.key+'" title="'+t.label+'"><span class="themeSwatch" style="background:'+t.swatch+'"></span></button>').join('')+'</div>';}
 function render(){
   document.getElementById('app').innerHTML=
-    '<header class="header"><a class="back" href="index.html"><span class="backArrow">←</span> Rowan</a>'
+    '<header class="header"><a class="back" href="index.html"><span class="backArrow">←</span> Noah</a>'
     +'<div class="headerRow"><h1 class="title">Progress</h1><div class="unitSeg"><button class="unitBtn '+(state.units==='kg'?'unitBtnActive':'')+'" data-act="units" data-u="kg">kg</button><button class="unitBtn '+(state.units==='lb'?'unitBtnActive':'')+'" data-act="units" data-u="lb">lb</button></div>'+themeSegHtml()+'</div>'
     +'<p class="subtitle">weight log · progress photos</p></header>'
     +heroHtml()+trainingHtml()+compHtml()+photosHtml();

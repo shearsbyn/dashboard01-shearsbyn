@@ -19,14 +19,14 @@ img{max-width:100%;height:auto}
 @media (max-width:480px){input,select,textarea{font-size:16px !important}}
 @supports (padding:max(0px)){body{padding-top:env(safe-area-inset-top);padding-bottom:env(safe-area-inset-bottom);padding-left:env(safe-area-inset-left);padding-right:env(safe-area-inset-right)}}
 </style>
-<title>Rowan · dashboard</title>
+<title>Noah · dashboard</title>
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Hanken+Grotesk:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet" />
 <script>try{document.documentElement.setAttribute("data-theme",localStorage.getItem("patron_theme")||"nocturne");}catch(e){document.documentElement.setAttribute("data-theme","nocturne");}</script>
 <style>
 /* ============================================================
- * Rowan — the main dashboard. Bento hub linking every app
+ * Noah — the main dashboard. Bento hub linking every app
  * in the Patron suite + a shared "Today's vitals" tile (Whoop /
  * Apple Watch / Manual). Same token system + 3 themes as the suite.
  * ============================================================ */
@@ -382,7 +382,7 @@ function headerHtml(){
   const chip = profile
     ? '<button type="button" class="profileChip" data-action="open-profile" title="Edit your profile"><span class="profileAvatar">' + esc((name || '·').charAt(0).toUpperCase()) + '</span>' + esc(name || 'Profile') + '</button>'
     : '<button type="button" class="profileChip profileChipNew" data-action="open-profile">Set up profile</button>';
-  return '<header class="header"><div><h1 class="title">Rowan</h1><p class="subtitle">' + greeting + '</p></div>'
+  return '<header class="header"><div><h1 class="title">Noah</h1><p class="subtitle">' + greeting + '</p></div>'
     + '<div class="headerControls">' + themeSegHtml() + chip + '</div></header>';
 }
 
@@ -487,7 +487,7 @@ function tickerMetrics(){
 function tickerHtml(){
   const items = tickerMetrics();
   if (!items.length){
-    return '<div class="ticker"><div class="tickerLead"><span class="tickerPulse"></span>Rowan · Live</div>'
+    return '<div class="ticker"><div class="tickerLead"><span class="tickerPulse"></span>Noah · Live</div>'
       + '<div class="tickerViewport"><div class="tickerTrack" style="animation:none;padding-left:var(--space-5)">'
       + '<span class="tickerItem" style="border:0"><span class="tiLabel">No data yet — add vitals to go live</span></span>'
       + '</div></div></div>';
@@ -500,7 +500,7 @@ function tickerHtml(){
   const seq = items.map(chip).join('');
   // duration scales with item count so speed stays constant regardless of how much data we have
   const dur = Math.max(18, items.length * 6);
-  return '<div class="ticker"><div class="tickerLead"><span class="tickerPulse"></span>Rowan · Live</div>'
+  return '<div class="ticker"><div class="tickerLead"><span class="tickerPulse"></span>Noah · Live</div>'
     + '<div class="tickerViewport"><div class="tickerTrack" style="animation-duration:' + dur + 's">'
     + seq + seq + '</div></div></div>';
 }
