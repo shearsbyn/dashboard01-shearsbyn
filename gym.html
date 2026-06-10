@@ -82,11 +82,6 @@ const CONFIG = {
     windowDays: 30           // window to compute weight + strength change
   },
 
-  // RapidAPI key for the ExerciseDB exercise library.
-  // Sign up free at: https://rapidapi.com/justin-WFnsXH_t6/api/exercisedb
-  // Paste your key between the quotes below, then save.
-  exerciseDbKey: "fd48b5d410mshe1d96e4fa3f24fdp1ce60ajsn6b8850cd9848",
-
   // Starter exercise list. Each one needs:
   //   name        — what shows in the dropdown
   //   gym         — one of the gym ids above, or "both"
@@ -3800,60 +3795,171 @@ img, video, canvas, svg { max-width: 100%; }
 
 <script>
 // ============================================================
-// EXERCISE LIBRARY  (ExerciseDB via RapidAPI)
-// Set CONFIG.exerciseDbKey to your RapidAPI key to enable.
-// Results are cached in localStorage for 24 h to preserve the
-// free-tier quota (10 req/day).
+// EXERCISE LIBRARY  — static built-in database, no API needed
 // ============================================================
 (function () {
-  const API_BASE   = 'https://exercisedb.p.rapidapi.com';
-  const CACHE_KEY  = 'po_exdb_cache';
-  const CACHE_TTL  = 86400 * 1000; // 24 h in ms
-  const PAGE_SIZE  = 20;
+  const PAGE_SIZE = 25;
 
-  const BODY_PARTS = [
-    'back','cardio','chest','lower arms','lower legs',
-    'neck','shoulders','upper arms','upper legs','waist'
+  // ---- static exercise database ----
+  const DB = [
+    // BACK
+    {p:'back', name:'Barbell row',            target:'lats',             equipment:'barbell'},
+    {p:'back', name:'Bent over row',          target:'lats',             equipment:'barbell'},
+    {p:'back', name:'Cable row',              target:'lats',             equipment:'cable'},
+    {p:'back', name:'Chest-supported row',    target:'mid back',         equipment:'dumbbell'},
+    {p:'back', name:'Deadlift',               target:'lower back',       equipment:'barbell'},
+    {p:'back', name:'Face pull',              target:'rear delts',       equipment:'cable'},
+    {p:'back', name:'Good morning',           target:'lower back',       equipment:'barbell'},
+    {p:'back', name:'Hyperextension',         target:'lower back',       equipment:'bodyweight'},
+    {p:'back', name:'Lat pulldown',           target:'lats',             equipment:'cable'},
+    {p:'back', name:'Meadows row',            target:'lats',             equipment:'barbell'},
+    {p:'back', name:'Pendlay row',            target:'lats',             equipment:'barbell'},
+    {p:'back', name:'Pull-up',                target:'lats',             equipment:'bodyweight'},
+    {p:'back', name:'Rack pull',              target:'lower back',       equipment:'barbell'},
+    {p:'back', name:'Reverse fly',            target:'rear delts',       equipment:'dumbbell'},
+    {p:'back', name:'Seated cable row',       target:'mid back',         equipment:'cable'},
+    {p:'back', name:'Single arm dumbbell row',target:'lats',             equipment:'dumbbell'},
+    {p:'back', name:'Straight arm pulldown',  target:'lats',             equipment:'cable'},
+    {p:'back', name:'Sumo deadlift',          target:'lower back',       equipment:'barbell'},
+    {p:'back', name:'T-bar row',              target:'mid back',         equipment:'barbell'},
+    {p:'back', name:'Wide grip pull-up',      target:'lats',             equipment:'bodyweight'},
+    // CARDIO
+    {p:'cardio', name:'Assault bike',         target:'cardiovascular',   equipment:'machine'},
+    {p:'cardio', name:'Box jump',             target:'cardiovascular',   equipment:'bodyweight'},
+    {p:'cardio', name:'Burpee',               target:'cardiovascular',   equipment:'bodyweight'},
+    {p:'cardio', name:'Cycling',              target:'cardiovascular',   equipment:'machine'},
+    {p:'cardio', name:'Elliptical',           target:'cardiovascular',   equipment:'machine'},
+    {p:'cardio', name:'High knees',           target:'cardiovascular',   equipment:'bodyweight'},
+    {p:'cardio', name:'Jump rope',            target:'cardiovascular',   equipment:'rope'},
+    {p:'cardio', name:'Jumping jacks',        target:'cardiovascular',   equipment:'bodyweight'},
+    {p:'cardio', name:'Mountain climbers',    target:'cardiovascular',   equipment:'bodyweight'},
+    {p:'cardio', name:'Rowing machine',       target:'cardiovascular',   equipment:'machine'},
+    {p:'cardio', name:'Running',              target:'cardiovascular',   equipment:'bodyweight'},
+    {p:'cardio', name:'Sled push',            target:'cardiovascular',   equipment:'sled'},
+    {p:'cardio', name:'Sprint intervals',     target:'cardiovascular',   equipment:'bodyweight'},
+    {p:'cardio', name:'Stair climber',        target:'cardiovascular',   equipment:'machine'},
+    {p:'cardio', name:'Swimming',             target:'cardiovascular',   equipment:'bodyweight'},
+    // CHEST
+    {p:'chest', name:'Cable crossover',       target:'pectorals',        equipment:'cable'},
+    {p:'chest', name:'Cable fly (high)',      target:'lower pectorals',  equipment:'cable'},
+    {p:'chest', name:'Cable fly (low)',       target:'upper pectorals',  equipment:'cable'},
+    {p:'chest', name:'Chest dip',             target:'pectorals',        equipment:'bodyweight'},
+    {p:'chest', name:'Chest press machine',   target:'pectorals',        equipment:'machine'},
+    {p:'chest', name:'Close grip bench press',target:'pectorals',        equipment:'barbell'},
+    {p:'chest', name:'Decline bench press',   target:'lower pectorals',  equipment:'barbell'},
+    {p:'chest', name:'Decline dumbbell press',target:'lower pectorals',  equipment:'dumbbell'},
+    {p:'chest', name:'Dumbbell fly',          target:'pectorals',        equipment:'dumbbell'},
+    {p:'chest', name:'Incline bench press',   target:'upper pectorals',  equipment:'barbell'},
+    {p:'chest', name:'Incline dumbbell fly',  target:'upper pectorals',  equipment:'dumbbell'},
+    {p:'chest', name:'Incline dumbbell press',target:'upper pectorals',  equipment:'dumbbell'},
+    {p:'chest', name:'Landmine press',        target:'upper pectorals',  equipment:'barbell'},
+    {p:'chest', name:'Pec deck',              target:'pectorals',        equipment:'machine'},
+    {p:'chest', name:'Push-up',               target:'pectorals',        equipment:'bodyweight'},
+    {p:'chest', name:'Flat barbell bench press',target:'pectorals',      equipment:'barbell'},
+    {p:'chest', name:'Flat dumbbell press',   target:'pectorals',        equipment:'dumbbell'},
+    {p:'chest', name:'Svend press',           target:'pectorals',        equipment:'plate'},
+    // LOWER ARMS
+    {p:'lower arms', name:'Farmer carry',     target:'forearms',         equipment:'dumbbell'},
+    {p:'lower arms', name:'Hammer curl',      target:'brachioradialis',  equipment:'dumbbell'},
+    {p:'lower arms', name:'Plate pinch',      target:'forearms',         equipment:'plate'},
+    {p:'lower arms', name:'Reverse curl',     target:'brachioradialis',  equipment:'barbell'},
+    {p:'lower arms', name:'Reverse wrist curl',target:'forearms',        equipment:'dumbbell'},
+    {p:'lower arms', name:'Wrist curl',       target:'forearms',         equipment:'dumbbell'},
+    {p:'lower arms', name:'Wrist roller',     target:'forearms',         equipment:'cable'},
+    {p:'lower arms', name:'Zottman curl',     target:'forearms',         equipment:'dumbbell'},
+    // LOWER LEGS
+    {p:'lower legs', name:'Calf raise (standing)',target:'gastrocnemius', equipment:'bodyweight'},
+    {p:'lower legs', name:'Calf raise (seated)',  target:'soleus',        equipment:'machine'},
+    {p:'lower legs', name:'Donkey calf raise',    target:'gastrocnemius', equipment:'bodyweight'},
+    {p:'lower legs', name:'Single leg calf raise',target:'gastrocnemius', equipment:'bodyweight'},
+    {p:'lower legs', name:'Tibialis raise',       target:'tibialis anterior',equipment:'bodyweight'},
+    {p:'lower legs', name:'Jump rope calf',       target:'gastrocnemius', equipment:'rope'},
+    // NECK
+    {p:'neck', name:'Neck extension',         target:'neck',             equipment:'plate'},
+    {p:'neck', name:'Neck flexion',           target:'neck',             equipment:'plate'},
+    {p:'neck', name:'Neck lateral flexion',   target:'neck',             equipment:'bodyweight'},
+    {p:'neck', name:'Shrug (barbell)',         target:'trapezius',        equipment:'barbell'},
+    {p:'neck', name:'Shrug (dumbbell)',        target:'trapezius',        equipment:'dumbbell'},
+    {p:'neck', name:'Shrug (machine)',         target:'trapezius',        equipment:'machine'},
+    // SHOULDERS
+    {p:'shoulders', name:'Arnold press',           target:'deltoids',      equipment:'dumbbell'},
+    {p:'shoulders', name:'Behind-the-neck press',  target:'deltoids',      equipment:'barbell'},
+    {p:'shoulders', name:'Bradford press',         target:'deltoids',      equipment:'barbell'},
+    {p:'shoulders', name:'Cable lateral raise',    target:'lateral deltoid',equipment:'cable'},
+    {p:'shoulders', name:'Cable front raise',      target:'front deltoid', equipment:'cable'},
+    {p:'shoulders', name:'Dumbbell lateral raise', target:'lateral deltoid',equipment:'dumbbell'},
+    {p:'shoulders', name:'Dumbbell front raise',   target:'front deltoid', equipment:'dumbbell'},
+    {p:'shoulders', name:'Face pull',              target:'rear deltoid',  equipment:'cable'},
+    {p:'shoulders', name:'Landmine lateral raise', target:'lateral deltoid',equipment:'barbell'},
+    {p:'shoulders', name:'Machine shoulder press', target:'deltoids',      equipment:'machine'},
+    {p:'shoulders', name:'Overhead press (barbell)',target:'deltoids',     equipment:'barbell'},
+    {p:'shoulders', name:'Overhead press (dumbbell)',target:'deltoids',    equipment:'dumbbell'},
+    {p:'shoulders', name:'Plate front raise',      target:'front deltoid', equipment:'plate'},
+    {p:'shoulders', name:'Rear delt fly',          target:'rear deltoid',  equipment:'dumbbell'},
+    {p:'shoulders', name:'Upright row',            target:'deltoids',      equipment:'barbell'},
+    // UPPER ARMS
+    {p:'upper arms', name:'Barbell curl',          target:'biceps',        equipment:'barbell'},
+    {p:'upper arms', name:'Cable curl',            target:'biceps',        equipment:'cable'},
+    {p:'upper arms', name:'Close grip bench press',target:'triceps',       equipment:'barbell'},
+    {p:'upper arms', name:'Concentration curl',    target:'biceps',        equipment:'dumbbell'},
+    {p:'upper arms', name:'Diamond push-up',       target:'triceps',       equipment:'bodyweight'},
+    {p:'upper arms', name:'Dip',                   target:'triceps',       equipment:'bodyweight'},
+    {p:'upper arms', name:'EZ bar curl',           target:'biceps',        equipment:'ez bar'},
+    {p:'upper arms', name:'Incline dumbbell curl', target:'biceps',        equipment:'dumbbell'},
+    {p:'upper arms', name:'Overhead tricep extension',target:'triceps',    equipment:'dumbbell'},
+    {p:'upper arms', name:'Preacher curl',         target:'biceps',        equipment:'ez bar'},
+    {p:'upper arms', name:'Skull crusher',         target:'triceps',       equipment:'ez bar'},
+    {p:'upper arms', name:'Spider curl',           target:'biceps',        equipment:'dumbbell'},
+    {p:'upper arms', name:'Tricep dip',            target:'triceps',       equipment:'bodyweight'},
+    {p:'upper arms', name:'Tricep kickback',       target:'triceps',       equipment:'dumbbell'},
+    {p:'upper arms', name:'Tricep pushdown (bar)', target:'triceps',       equipment:'cable'},
+    {p:'upper arms', name:'Tricep pushdown (rope)',target:'triceps',       equipment:'cable'},
+    // UPPER LEGS
+    {p:'upper legs', name:'Back squat',            target:'quads',         equipment:'barbell'},
+    {p:'upper legs', name:'Box squat',             target:'quads',         equipment:'barbell'},
+    {p:'upper legs', name:'Bulgarian split squat', target:'quads',         equipment:'dumbbell'},
+    {p:'upper legs', name:'Front squat',           target:'quads',         equipment:'barbell'},
+    {p:'upper legs', name:'Glute bridge',          target:'glutes',        equipment:'bodyweight'},
+    {p:'upper legs', name:'Goblet squat',          target:'quads',         equipment:'dumbbell'},
+    {p:'upper legs', name:'Hack squat',            target:'quads',         equipment:'machine'},
+    {p:'upper legs', name:'Hip thrust',            target:'glutes',        equipment:'barbell'},
+    {p:'upper legs', name:'Leg curl (lying)',       target:'hamstrings',    equipment:'machine'},
+    {p:'upper legs', name:'Leg curl (seated)',      target:'hamstrings',    equipment:'machine'},
+    {p:'upper legs', name:'Leg extension',         target:'quads',         equipment:'machine'},
+    {p:'upper legs', name:'Leg press',             target:'quads',         equipment:'machine'},
+    {p:'upper legs', name:'Lunge',                 target:'quads',         equipment:'bodyweight'},
+    {p:'upper legs', name:'Romanian deadlift',     target:'hamstrings',    equipment:'barbell'},
+    {p:'upper legs', name:'Step-up',               target:'quads',         equipment:'dumbbell'},
+    {p:'upper legs', name:'Sumo squat',            target:'inner thighs',  equipment:'dumbbell'},
+    {p:'upper legs', name:'Walking lunge',         target:'quads',         equipment:'dumbbell'},
+    // WAIST
+    {p:'waist', name:'Ab wheel rollout',      target:'abs',              equipment:'wheel'},
+    {p:'waist', name:'Bicycle crunch',        target:'obliques',         equipment:'bodyweight'},
+    {p:'waist', name:'Cable crunch',          target:'abs',              equipment:'cable'},
+    {p:'waist', name:'Cable wood chop',       target:'obliques',         equipment:'cable'},
+    {p:'waist', name:'Crunch',                target:'abs',              equipment:'bodyweight'},
+    {p:'waist', name:'Dead bug',              target:'abs',              equipment:'bodyweight'},
+    {p:'waist', name:'Decline crunch',        target:'abs',              equipment:'bodyweight'},
+    {p:'waist', name:'Dragon flag',           target:'abs',              equipment:'bodyweight'},
+    {p:'waist', name:'Hanging leg raise',     target:'abs',              equipment:'bodyweight'},
+    {p:'waist', name:'Hollow body hold',      target:'abs',              equipment:'bodyweight'},
+    {p:'waist', name:'Leg raise',             target:'lower abs',        equipment:'bodyweight'},
+    {p:'waist', name:'Plank',                 target:'abs',              equipment:'bodyweight'},
+    {p:'waist', name:'Russian twist',         target:'obliques',         equipment:'bodyweight'},
+    {p:'waist', name:'Side plank',            target:'obliques',         equipment:'bodyweight'},
+    {p:'waist', name:'Toe touch crunch',      target:'upper abs',        equipment:'bodyweight'},
+    {p:'waist', name:'V-up',                  target:'abs',              equipment:'bodyweight'},
   ];
 
-  let libBodyPart  = BODY_PARTS[2]; // default: chest
+  const BODY_PARTS = [...new Set(DB.map(e => e.p))];
+
+  let libBodyPart  = 'chest';
   let libOffset    = 0;
-  let libResults   = [];
   let libSearchQ   = '';
   let libSearchTimer = null;
 
-  // ---- cache helpers ----
-  function cacheGet(key) {
-    try {
-      const raw = localStorage.getItem(CACHE_KEY);
-      if (!raw) return null;
-      const store = JSON.parse(raw);
-      const entry = store[key];
-      if (!entry) return null;
-      if (Date.now() - entry.ts > CACHE_TTL) return null;
-      return entry.data;
-    } catch (_) { return null; }
-  }
-  function cacheSet(key, data) {
-    try {
-      const raw = localStorage.getItem(CACHE_KEY);
-      const store = raw ? JSON.parse(raw) : {};
-      store[key] = { ts: Date.now(), data };
-      localStorage.setItem(CACHE_KEY, JSON.stringify(store));
-    } catch (_) {}
-  }
-
-  // ---- fetch wrapper ----
-  async function apiFetch(path) {
-    const key = CONFIG.exerciseDbKey;
-    const res = await fetch(API_BASE + path, {
-      headers: {
-        'X-RapidAPI-Key':  key,
-        'X-RapidAPI-Host': 'exercisedb.p.rapidapi.com'
-      }
-    });
-    if (!res.ok) throw new Error('HTTP ' + res.status);
-    return res.json();
+  function capitalise(s) {
+    return s.charAt(0).toUpperCase() + s.slice(1);
   }
 
   // ---- render helpers ----
@@ -3882,14 +3988,10 @@ img, video, canvas, svg { max-width: 100%; }
       const card = document.createElement('div');
       card.className = 'lib-card';
 
-      const imgHtml = ex.gifUrl
-        ? '<img class="lib-card-img" src="' + ex.gifUrl + '" alt="" loading="lazy">'
-        : '<div class="lib-card-img-placeholder">💪</div>';
-
-      card.innerHTML = imgHtml
+      card.innerHTML = '<div class="lib-card-img-placeholder">💪</div>'
         + '<div class="lib-card-info">'
         +   '<div class="lib-card-name">' + ex.name + '</div>'
-        +   '<div class="lib-card-meta">' + (ex.target || '') + (ex.equipment ? ' · ' + ex.equipment : '') + '</div>'
+        +   '<div class="lib-card-meta">' + ex.target + ' · ' + ex.equipment + '</div>'
         + '</div>'
         + '<button class="lib-card-add" aria-label="Add to tracker">+</button>';
 
@@ -3901,78 +4003,46 @@ img, video, canvas, svg { max-width: 100%; }
       grid.appendChild(card);
     });
 
-    // Load-more button
     const existing = body.querySelector('.lib-load-more');
     if (existing) existing.remove();
-    if (exercises.length === PAGE_SIZE) {
+    if (libOffset + PAGE_SIZE < getFiltered().length) {
       const btn = document.createElement('button');
       btn.className = 'lib-load-more';
       btn.textContent = 'Load more…';
-      btn.addEventListener('click', () => { libOffset += PAGE_SIZE; loadPage(true); });
+      btn.addEventListener('click', () => { libOffset += PAGE_SIZE; renderPage(true); });
       body.appendChild(btn);
     }
   }
 
   function prefillAndOpen(ex) {
-    // Close library, then open the add-exercise modal pre-filled
     document.getElementById('libModalBg').classList.remove('show');
-    // openExModal is defined in the outer IIFE — call via the existing add button path
-    // but first seed the name input
     const nameInput = document.getElementById('exName');
-    if (nameInput) nameInput.value = capitalise(ex.name);
+    if (nameInput) nameInput.value = ex.name;
     document.getElementById('addExBtn').click();
-    // After the modal opens, set the name (click may clear it)
     setTimeout(() => {
       const ni = document.getElementById('exName');
-      if (ni) ni.value = capitalise(ex.name);
+      if (ni) ni.value = ex.name;
     }, 80);
   }
 
-  function capitalise(s) {
-    return s.charAt(0).toUpperCase() + s.slice(1);
+  function getFiltered() {
+    if (libSearchQ) {
+      return DB.filter(e => e.name.toLowerCase().includes(libSearchQ)
+                         || e.target.toLowerCase().includes(libSearchQ)
+                         || e.equipment.toLowerCase().includes(libSearchQ));
+    }
+    return DB.filter(e => e.p === libBodyPart);
   }
 
-  // ---- load data ----
-  async function loadPage(append) {
-    if (!CONFIG.exerciseDbKey) {
-      document.getElementById('libBody').innerHTML =
-        '<div class="lib-no-key">'
-        + 'Add your RapidAPI key to <code>CONFIG.exerciseDbKey</code> at the top of gym.html to unlock the exercise library.'
-        + '<br><br>Sign up free (10 req/day) at <strong>rapidapi.com</strong> → search <em>ExerciseDB</em>.'
-        + '</div>';
-      return;
-    }
+  function renderPage(append) {
+    const filtered = getFiltered();
+    const page = filtered.slice(libOffset, libOffset + PAGE_SIZE);
+    renderCards(page, append);
+  }
 
-    if (!append) {
-      libOffset = 0;
-      setStatus('Loading…');
-    }
-
-    const cacheKeyStr = libSearchQ
-      ? 'search:' + libSearchQ
-      : 'part:' + libBodyPart + ':' + libOffset;
-
-    const cached = cacheGet(cacheKeyStr);
-    if (cached) {
-      libResults = append ? libResults.concat(cached) : cached;
-      renderCards(cached, append);
-      return;
-    }
-
-    try {
-      let path;
-      if (libSearchQ) {
-        path = '/exercises?name=' + encodeURIComponent(libSearchQ) + '&limit=' + PAGE_SIZE + '&offset=' + libOffset;
-      } else {
-        path = '/exercises/bodyPart/' + encodeURIComponent(libBodyPart) + '?limit=' + PAGE_SIZE + '&offset=' + libOffset;
-      }
-      const data = await apiFetch(path);
-      cacheSet(cacheKeyStr, data);
-      libResults = append ? libResults.concat(data) : data;
-      renderCards(data, append);
-    } catch (err) {
-      setStatus('Could not load exercises. Check your API key or try again later.<br><small>' + err.message + '</small>');
-    }
+  function loadPage() {
+    libOffset = 0;
+    renderPage(false);
   }
 
   // ---- filter pills ----
