@@ -237,6 +237,70 @@ body { background: var(--bg); color: var(--fg); font-family: var(--font-ui), -ap
 .tickerItem[data-tone="muted"] { color: var(--muted); }
 @media (prefers-reduced-motion: reduce) { .tickerTrack { animation: none; } .tickerViewport { overflow-x: auto; } }
 
+/* ============================================================
+ * Today's Progress section — day ring + goals merged from goals.html
+ * ============================================================ */
+.progSection { margin-bottom: var(--space-6); }
+.progCard {
+  display: flex; align-items: flex-start; gap: var(--space-6); flex-wrap: wrap;
+  padding: var(--space-5) var(--space-6);
+  border: 1px solid var(--border); border-radius: var(--radius-lg);
+  background: var(--surface); box-shadow: var(--card-shadow);
+}
+/* Day ring (compact) */
+.progRingWrap { position: relative; flex-shrink: 0; width: 108px; height: 108px; }
+.progRingWrap svg { width: 100%; height: 100%; display: block; }
+.progRingTrack { fill: none; stroke: var(--border); stroke-width: 7; }
+.progRingFill  { fill: none; stroke-width: 7; stroke-linecap: round;
+  transform: rotate(-90deg); transform-origin: 54px 54px;
+  transition: stroke-dashoffset 0.7s cubic-bezier(0.22,1,0.36,1), stroke 0.7s ease; }
+.progRingOverlay {
+  position: absolute; inset: 0; display: flex; flex-direction: column;
+  align-items: center; justify-content: center; pointer-events: none;
+}
+.progRingPct  { font-family: var(--font-display); font-weight: 700; font-size: 1.55rem;
+  letter-spacing: -0.04em; color: var(--fg); line-height: 1; font-variant-numeric: tabular-nums; }
+.progRingPhase { font-family: var(--font-mono); font-size: 8px; font-weight: 700;
+  letter-spacing: 0.16em; text-transform: uppercase; color: var(--muted); margin-top: 3px; }
+/* Goals column */
+.progGoals { flex: 1; min-width: 200px; display: flex; flex-direction: column; gap: var(--space-3); }
+.progGoalsHead { display: flex; align-items: center; justify-content: space-between; gap: var(--space-3); }
+.progGoalsTitle { font-family: var(--font-display); font-weight: 600; font-size: var(--text-lg);
+  letter-spacing: -0.02em; }
+.progStreak { display: inline-flex; align-items: center; gap: 5px;
+  padding: 4px 10px; border-radius: var(--radius-pill);
+  background: var(--surface); border: 1px solid var(--border);
+  font-family: var(--font-mono); font-size: 11px; font-weight: 700; color: var(--muted); }
+.progStreak.active { background: rgba(251,191,36,0.10); color: var(--warn); border-color: rgba(251,191,36,0.30); }
+.progBar { display: flex; gap: 3px; height: 5px; border-radius: 3px; overflow: hidden; }
+.progBarSeg { flex: 1; border-radius: 3px; background: var(--track); }
+.progBarSeg.done { background: var(--pos); box-shadow: 0 0 5px var(--pos-soft); }
+.progCount { font-family: var(--font-mono); font-size: 11px; color: var(--muted); }
+.progCount strong { color: var(--pos); }
+.progMiniList { display: flex; flex-direction: column; gap: 4px; }
+.progMiniRow { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--fg);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.progMiniRow.done { color: var(--muted); text-decoration: line-through; text-decoration-color: var(--border-strong); }
+.progMiniCheck { width: 14px; height: 14px; border-radius: 4px; flex-shrink: 0;
+  border: 1.5px solid var(--border-strong); background: var(--surface); }
+.progMiniCheck.done { background: var(--pos); border-color: var(--pos);
+  display: flex; align-items: center; justify-content: center; }
+.progMiniCheck.done::after { content:''; width:5px; height:8px; border:solid var(--bg); border-width:0 2px 2px 0; transform:rotate(45deg); display:block; }
+.progLink { align-self: flex-start; font-family: var(--font-mono); font-size: 11px; font-weight: 600;
+  letter-spacing: 0.06em; color: var(--brand); text-decoration: none; text-transform: uppercase; }
+.progLink:hover { text-decoration: underline; }
+/* Day status line */
+.progDayLine { font-family: var(--font-mono); font-size: 11px; color: var(--muted-strong); }
+/* Right divider — ring from goals */
+@media (min-width: 560px) {
+  .progRingWrap { border-right: 1px solid var(--border); padding-right: var(--space-6); margin-right: 0; }
+}
+@media (max-width: 559px) {
+  .progCard { gap: var(--space-4); }
+  .progRingWrap { width: 84px; height: 84px; }
+  .progRingPct { font-size: 1.2rem; }
+}
+
 /* How-to steps (Apple Watch manual-copy guide inside the vitals modal) */
 .howto { margin: var(--space-4) 0 var(--space-2); padding: var(--space-4); border: 1px solid var(--brand-line); background: var(--brand-soft); border-radius: var(--radius-md); }
 .howtoTitle { display:flex; align-items:center; gap: 8px; font-family: var(--font-display); font-weight: 600; font-size: var(--text-sm); margin-bottom: var(--space-3); }
@@ -517,9 +581,105 @@ function remindersHtml(){
     + items.map(r => '<a class="reminderChip" href="' + r.file + '"><span class="reminderDot"></span><span aria-hidden>' + r.icon + '</span> ' + r.text + ' <span class="reminderGo" aria-hidden>→</span></a>').join('')
     + '</div>';
 }
+/* ============================================================
+ * Today's Progress widget — day ring + goals summary
+ * ============================================================ */
+function progressSectionHtml() {
+  // --- Day Ring ---
+  const DAY_WIN_KEY = 'goals:dayWindow';
+  function hm2dec(s){ if(!s) return null; const p=String(s).split(':'); const h=Number(p[0]),m=Number(p[1]||0); return isFinite(h)?h+m/60:null; }
+  function dec2clock(d){ const h=Math.floor(((d%24)+24)%24); let m=Math.round(((d%1)+1)%1*60); let hh=h; if(m===60){m=0;hh=(hh+1)%24;} const ap=hh<12?'AM':'PM'; let h12=hh%12; if(!h12)h12=12; return h12+':'+String(m).padStart(2,'0')+' '+ap; }
+  let wakeH=8, sleepH=24;
+  try {
+    const prefs = lsGet(DAY_WIN_KEY) || {};
+    const vh = health;
+    if (prefs.mode === 'manual' && (prefs.wake||prefs.sleep)) {
+      wakeH = hm2dec(prefs.wake)||8; sleepH = hm2dec(prefs.sleep)||24;
+    } else if (vh && (vh.wakeTime||vh.bedtime)) {
+      wakeH = hm2dec(vh.wakeTime)||8; sleepH = hm2dec(vh.bedtime)||24;
+    }
+    if (sleepH <= wakeH) sleepH += 24;
+  } catch(_) {}
+
+  const now = new Date();
+  let hrs = now.getHours() + now.getMinutes()/60 + now.getSeconds()/3600;
+  if (hrs < wakeH && sleepH > 24 && (hrs+24) < sleepH) hrs += 24;
+
+  const C = 2 * Math.PI * 46;
+  let pct = 0, pctStr = '—', phase = '—', strokeColor = 'var(--muted)', dayStatus = '';
+  if (hrs >= wakeH && hrs < sleepH) {
+    pct = Math.min(100, (hrs - wakeH) / (sleepH - wakeH) * 100);
+    pctStr = Math.floor(pct) + '%';
+    if      (pct < 25)  { phase = 'MORNING';   strokeColor = 'var(--brand-2)'; dayStatus = '☀️ Morning'; }
+    else if (pct < 50)  { phase = 'MIDDAY';    strokeColor = 'var(--brand)';   dayStatus = '⚡ Midday'; }
+    else if (pct < 75)  { phase = 'AFTERNOON'; strokeColor = 'var(--brand)';   dayStatus = '🔥 Afternoon'; }
+    else if (pct < 90)  { phase = 'EVENING';   strokeColor = '#FB7185';         dayStatus = '⏳ Evening'; }
+    else                { phase = 'BEDTIME';   strokeColor = '#FB7185';         dayStatus = '🌙 Bedtime soon'; }
+  } else if (hrs < wakeH) {
+    pctStr = '—'; phase = 'ASLEEP'; strokeColor = 'var(--muted)'; dayStatus = '😴 Sleeping';
+  } else {
+    pct = 100; pctStr = '100%'; phase = 'DONE'; strokeColor = '#FB7185'; dayStatus = '⚠️ Past bedtime';
+  }
+  const offset = C * (1 - pct / 100);
+  const minsLeft = hrs < sleepH ? Math.round((sleepH - hrs) * 60) : 0;
+  const timeLeft = minsLeft > 0 ? (Math.floor(minsLeft/60) + 'h ' + (minsLeft%60) + 'm left') : '';
+
+  const ringHtml =
+    '<div class="progRingWrap">'
+    + '<svg viewBox="0 0 108 108" aria-hidden>'
+    + '<circle class="progRingTrack" cx="54" cy="54" r="46"/>'
+    + '<circle class="progRingFill" cx="54" cy="54" r="46" style="stroke:'+strokeColor+';stroke-dasharray:'+C.toFixed(1)+';stroke-dashoffset:'+offset.toFixed(1)+'"/>'
+    + '</svg>'
+    + '<div class="progRingOverlay"><div class="progRingPct">'+pctStr+'</div><div class="progRingPhase">'+phase+'</div></div>'
+    + '</div>';
+
+  // --- Goals ---
+  function pad2(n){ return String(n).padStart(2,'0'); }
+  function activeKey(){ const d=new Date(); if(d.getHours()<6) d.setDate(d.getDate()-1); return 'goals:'+d.getFullYear()+'-'+pad2(d.getMonth()+1)+'-'+pad2(d.getDate()); }
+  let goals = [];
+  try { const g = lsGet(activeKey()); if(Array.isArray(g)) goals = g; } catch(_){}
+  const total = goals.length, done = goals.filter(g=>g.done).length;
+  let streak = 0;
+  try { const s = lsGet('goal_streak_v1'); if(s && typeof s.count==='number') streak = s.count; } catch(_){}
+
+  const barHtml = total > 0
+    ? '<div class="progBar">' + goals.map(g=>'<div class="progBarSeg'+(g.done?' done':'')+'"></div>').join('') + '</div>'
+    : '<div class="progBar"><div class="progBarSeg"></div></div>';
+
+  const countHtml = total === 0
+    ? '<span class="progCount">No goals set yet</span>'
+    : done === total
+      ? '<span class="progCount"><strong>All '+total+' done</strong> — solid day 🎉</span>'
+      : '<span class="progCount"><strong>'+done+'/'+total+'</strong> complete</span>';
+
+  const preview = goals.slice(0, 4);
+  const miniListHtml = preview.length
+    ? '<div class="progMiniList">'
+      + preview.map(g=>'<div class="progMiniRow'+(g.done?' done':'')+'"><div class="progMiniCheck'+(g.done?' done':'')+'"></div>'+esc(g.text)+'</div>').join('')
+      + (goals.length > 4 ? '<div class="progMiniRow" style="color:var(--muted)">+ '+(goals.length-4)+' more…</div>' : '')
+      + '</div>'
+    : '<div style="font-size:13px;color:var(--muted)">Add goals on the Goals tab →</div>';
+
+  const streakHtml = '<div class="progStreak'+(streak>0?' active':'')+'">⚡ '+streak+' day streak</div>';
+
+  const goalsHtml =
+    '<div class="progGoals">'
+    + '<div class="progGoalsHead"><span class="progGoalsTitle">Today\'s Goals</span>'+streakHtml+'</div>'
+    + barHtml
+    + '<div style="display:flex;align-items:center;gap:var(--space-4);flex-wrap:wrap">'
+    + countHtml
+    + '<span class="progDayLine">'+dayStatus+(timeLeft?' · '+timeLeft:'')+'</span>'
+    + '</div>'
+    + miniListHtml
+    + '<a class="progLink" href="goals.html">Open Goals & Streaks →</a>'
+    + '</div>';
+
+  return '<div class="progSection"><div class="progCard">'+ringHtml+goalsHtml+'</div></div>';
+}
+
 function render(){
   document.getElementById('app').innerHTML =
-    headerHtml() + tickerHtml() + remindersHtml() + '<div class="bento">' + vitalsTileHtml() + APPS.map(cardHtml).join('') + '</div>';
+    headerHtml() + tickerHtml() + remindersHtml() + progressSectionHtml() + '<div class="bento">' + vitalsTileHtml() + APPS.map(cardHtml).join('') + '</div>';
   renderModal();
 }
 
