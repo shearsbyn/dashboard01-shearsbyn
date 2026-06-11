@@ -711,7 +711,7 @@ function renderModal(){
     if (!ON_SERVER) {
       bodyHtml = '<p class="panelNote">Live Fitbit sync runs on the deployed app (Vercel) with your Fitbit API keys. Opened locally, use <strong>Apple Watch</strong> or <strong>Manual</strong> above. Once deployed &amp; configured, a one-tap <em>Connect Fitbit</em> appears here. See <strong>FITBIT_SETUP.md</strong>.</p>';
     } else if (fitbitStatus.connected) {
-      bodyHtml = ‘<p class="panelNote">✓ <strong>Fitbit connected.</strong> Sleep, HRV, resting HR &amp; your bed/wake times sync automatically across the suite. Tokens are stored server-side, never in the browser.<br><br>Recovery % is auto-calculated from the synced HRV, resting HR &amp; sleep data.</p>’
+      bodyHtml = '<p class="panelNote">✓ <strong>Fitbit connected.</strong> Sleep, HRV, resting HR &amp; your bed/wake times sync automatically across the suite. Tokens are stored server-side, never in the browser.<br><br>Recovery % is auto-calculated from the synced HRV, resting HR &amp; sleep data.</p>'
         + '<div class="srcActions"><button type="button" class="btn btn-link spacer" data-action="fitbit-disconnect">disconnect Fitbit</button><button type="button" class="btn btn-primary" data-action="fitbit-sync">Sync now</button></div>';
     } else {
       bodyHtml = '<p class="panelNote">Connect your Fitbit account once — sleep, HRV, resting HR &amp; bed/wake times then sync automatically. You log in on fitbit.com; your tokens stay server-side. Recovery % is auto-calculated from the synced data.</p>'
