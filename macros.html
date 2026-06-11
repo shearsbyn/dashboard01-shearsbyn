@@ -22,7 +22,6 @@
 <link rel="stylesheet" href="theme.css" />
 
 <style>
-  /* page-specific layout — all colours/sizes still come from theme.css tokens */
   .macroGrid { display:grid; grid-template-columns: repeat(4, 1fr); gap: var(--space-3); }
   @media (max-width: 560px) { .macroGrid { grid-template-columns: repeat(2, 1fr); } }
   .macroBox { display:flex; flex-direction:column; gap:4px; padding: var(--space-4); border:1px solid var(--border); border-radius: var(--radius-md); background: var(--surface); }
@@ -30,7 +29,6 @@
   .macroVal { font-family: var(--font-display); font-weight:600; font-size: var(--text-2xl); letter-spacing:-0.02em; font-variant-numeric: tabular-nums; }
   .macroLabel { font-family: var(--font-mono); font-size:10px; letter-spacing:0.12em; text-transform:uppercase; color: var(--muted); }
 
-  /* MyFitnessPal-style header: Goal − Food = Remaining + a progress bar */
   .calHead { display:flex; align-items:center; justify-content:space-between; gap: var(--space-4); flex-wrap:wrap; margin-bottom: var(--space-4); }
   .calMath { display:flex; align-items:center; gap: var(--space-5); flex-wrap:wrap; }
   .calCell { display:flex; flex-direction:column; gap:2px; }
@@ -45,20 +43,46 @@
   .barFill { height:100%; border-radius: var(--radius-pill); background: var(--brand); transition: width var(--duration) var(--ease-premium); }
   .barFill.over { background: var(--neg); }
 
-  .search { position: relative; margin: var(--space-5) 0 var(--space-3); }
-  .results { display:flex; flex-direction:column; gap:6px; margin-top: var(--space-3); }
+  /* Search section */
+  .sectionTitle { font-family: var(--font-display); font-weight:600; font-size: var(--text-lg); margin: var(--space-8) 0 0; }
+  .modeSwitcher { display:flex; gap:6px; margin: var(--space-4) 0 var(--space-3); }
+  .modeBtn { flex:1; padding: 8px; border-radius: var(--radius-md); border: 1px solid var(--border); background: var(--surface); color: var(--muted-strong); font-family: inherit; font-size: 13px; font-weight:600; cursor:pointer; transition: background 0.15s, color 0.15s, border-color 0.15s; }
+  .modeBtn.active { background: var(--brand-soft); border-color: var(--brand-line); color: var(--brand); }
+
+  .searchRow { display:flex; gap:8px; align-items:center; margin-bottom: var(--space-3); }
+  .searchRow .fieldInput { flex:1; }
+  .scanBtn { width:42px; height:42px; flex-shrink:0; border-radius: var(--radius-md); border:1px solid var(--border); background: var(--surface); color: var(--muted-strong); cursor:pointer; display:flex; align-items:center; justify-content:center; transition: background 0.15s; }
+  .scanBtn:hover { background: var(--surface-2); }
+  .scanBtn svg { width:20px; height:20px; }
+
+  .results { display:flex; flex-direction:column; gap:6px; }
   .foodRow { display:flex; align-items:center; justify-content:space-between; gap: var(--space-3); padding: 10px 12px; border:1px solid var(--border); border-radius: var(--radius-md); background: var(--surface); }
   .foodRow .meta { font-family: var(--font-mono); font-size:11px; color: var(--muted); }
   .foodName { font-weight:600; font-size: var(--text-sm); }
+  .foodBrand { font-size:11px; color: var(--muted); margin-bottom:2px; }
   .gramInput { width: 74px; }
   .empty { color: var(--muted); font-size: 13px; padding: var(--space-4) 0; }
+  .offBadge { display:inline-block; font-size:9px; font-weight:700; letter-spacing:0.08em; text-transform:uppercase; padding:1px 5px; border-radius:999px; background: var(--brand-soft); color: var(--brand); margin-left:6px; vertical-align: middle; }
+  .loadingDots { display:inline-flex; gap:3px; padding: var(--space-3) 0; }
+  .loadingDots span { width:6px; height:6px; border-radius:50%; background: var(--muted); animation: dot 1.2s infinite; }
+  .loadingDots span:nth-child(2) { animation-delay:.2s; }
+  .loadingDots span:nth-child(3) { animation-delay:.4s; }
+  @keyframes dot { 0%,80%,100%{opacity:.2} 40%{opacity:1} }
+
+  /* Camera overlay for barcode scan */
+  .camOverlay { position:fixed; inset:0; background:#000; z-index:999; display:none; flex-direction:column; }
+  .camOverlay.open { display:flex; }
+  .camVideo { flex:1; width:100%; object-fit:cover; }
+  .camFrame { position:absolute; inset:0; display:flex; align-items:center; justify-content:center; pointer-events:none; }
+  .camBox { width:240px; height:120px; border:2px solid var(--brand); border-radius:12px; box-shadow:0 0 0 9999px rgba(0,0,0,0.55); }
+  .camHint { position:absolute; bottom:0; left:0; right:0; padding: 20px 20px calc(20px + env(safe-area-inset-bottom)); text-align:center; }
+  .camClose { padding:12px 28px; border-radius: var(--radius-pill); border:1px solid rgba(255,255,255,0.25); background:rgba(0,0,0,0.5); color:#fff; font-family:inherit; font-size:14px; font-weight:600; cursor:pointer; }
 
   .logList { display:flex; flex-direction:column; gap:6px; margin-top: var(--space-3); }
   .logRow { display:flex; align-items:center; justify-content:space-between; gap: var(--space-3); padding: 10px 12px; border:1px solid var(--border); border-radius: var(--radius-md); background: var(--surface); }
   .logRow .nums { font-family: var(--font-mono); font-size:11px; color: var(--muted-strong); }
   .xBtn { background:transparent; border:1px solid var(--border); color:var(--muted); width:26px; height:26px; border-radius:50%; cursor:pointer; flex-shrink:0; }
   .xBtn:hover { color: var(--neg); border-color: var(--neg-line); }
-  .sectionTitle { font-family: var(--font-display); font-weight:600; font-size: var(--text-lg); margin: var(--space-8) 0 0; }
 </style>
 </head>
 <body>
@@ -66,16 +90,22 @@
   <div class="shell" id="app"></div>
 </main>
 
+<!-- Camera overlay for barcode scanning -->
+<div class="camOverlay" id="camOverlay">
+  <video class="camVideo" id="camVideo" autoplay playsinline muted></video>
+  <div class="camFrame"><div class="camBox"></div></div>
+  <div class="camHint"><button class="camClose" id="camClose">Cancel</button></div>
+</div>
+
 <script src="theme.js"></script>
 <script>
 /* ============================================================
- * Macros — a simple daily food + macro tracker.
- * Data is saved per-day in localStorage under macros_standalone_v1.
+ * Macros — daily food + macro tracker with OpenFoodFacts search.
  * ============================================================ */
 const STORE_KEY = 'macros_standalone_v1';
 
-/* A small built-in food database (values per 100g). Add your own here. */
-const FOODS = [
+/* Local fallback foods (values per 100g). */
+const LOCAL_FOODS = [
   { name: 'Chicken breast',  cal: 165, p: 31,  c: 0,   f: 3.6 },
   { name: 'Beef mince (5%)', cal: 137, p: 21,  c: 0,   f: 5   },
   { name: 'Salmon',          cal: 208, p: 20,  c: 0,   f: 13  },
@@ -100,88 +130,186 @@ const FOODS = [
   { name: 'Tuna (canned)',   cal: 116, p: 26,  c: 0,   f: 1   },
 ];
 
-/* ---- storage helpers ---- */
+/* ---- storage ---- */
 function todayKey(){ const d = new Date(); return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0'); }
 function loadAll(){ try { const r = localStorage.getItem(STORE_KEY); return r ? JSON.parse(r) : {}; } catch(e){ return {}; } }
 function saveAll(o){ try { localStorage.setItem(STORE_KEY, JSON.stringify(o)); } catch(e){} }
 let store = loadAll();
 function todaysLog(){ return store[todayKey()] || []; }
 function setTodaysLog(list){ store[todayKey()] = list; saveAll(store); }
-function goalCal(){ return store.goalCal != null ? store.goalCal : 2000; } // daily calorie target (editable)
+function goalCal(){ return store.goalCal != null ? store.goalCal : 2000; }
 function setGoalCal(n){ store.goalCal = n; saveAll(store); }
 
 function esc(s){ return String(s == null ? '' : s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
-function round(n){ return Math.round(n); }
+function round(n){ return Math.round(n * 10) / 10; }
+function r1(n){ return isFinite(n) ? Math.round(n * 10) / 10 : 0; }
 
-let query = '';
-let matches = [];
+/* ---- search state ---- */
+let searchMode  = 'text';   // 'text' | 'barcode'
+let textQuery   = '';
+let barcodeQuery = '';
+let pendingMatches = [];    // {name, brand, cal, p, c, f, fromOFF} — populated after fetch
+let searchLoading = false;
+let searchDebounce = null;
 
-/* ---- calculations ---- */
-function totals(){
-  return todaysLog().reduce((t, e) => {
-    t.cal += e.cal; t.p += e.p; t.c += e.c; t.f += e.f; return t;
-  }, { cal:0, p:0, c:0, f:0 });
+/* ---- OpenFoodFacts helpers ---- */
+function offNutriments(n) {
+  const cal = r1(n['energy-kcal_100g'] || (n['energy_100g'] || 0) / 4.184);
+  return { cal, p: r1(n['proteins_100g'] || 0), c: r1(n['carbohydrates_100g'] || 0), f: r1(n['fat_100g'] || 0) };
 }
 
-/* ---- views ---- */
+async function searchOFF(q) {
+  const url = 'https://world.openfoodfacts.org/cgi/search.pl?search_terms='
+    + encodeURIComponent(q)
+    + '&json=1&action=process&fields=product_name,nutriments,brands,code&page_size=8';
+  const res = await fetch(url);
+  if (!res.ok) throw new Error('OFF ' + res.status);
+  const data = await res.json();
+  return (data.products || [])
+    .filter(p => p.product_name && p.nutriments && p.nutriments['energy-kcal_100g'] != null)
+    .map(p => ({ name: p.product_name, brand: p.brands || '', ...offNutriments(p.nutriments), fromOFF: true }));
+}
+
+async function lookupBarcode(code) {
+  const url = 'https://world.openfoodfacts.org/api/v2/product/' + encodeURIComponent(code)
+    + '.json?fields=product_name,nutriments,brands';
+  const res = await fetch(url);
+  if (!res.ok) throw new Error('OFF ' + res.status);
+  const data = await res.json();
+  if (data.status !== 1 || !data.product) return null;
+  const p = data.product;
+  if (!p.nutriments || p.nutriments['energy-kcal_100g'] == null) return null;
+  return { name: p.product_name || 'Unknown product', brand: p.brands || '', ...offNutriments(p.nutriments), fromOFF: true };
+}
+
+async function runSearch() {
+  const q = textQuery.trim();
+  if (!q) { pendingMatches = []; renderResults(); return; }
+
+  // Local matches first (instant)
+  pendingMatches = LOCAL_FOODS.filter(f => f.name.toLowerCase().includes(q.toLowerCase())).slice(0, 4);
+  renderResults();
+
+  // Then fetch OFF
+  searchLoading = true;
+  renderResults();
+  try {
+    const off = await searchOFF(q);
+    // Deduplicate: remove local entries that have an OFF match with the same name
+    const offNames = new Set(off.map(f => f.name.toLowerCase()));
+    pendingMatches = pendingMatches.filter(f => !offNames.has(f.name.toLowerCase())).concat(off);
+  } catch (_) { /* keep local results */ }
+  searchLoading = false;
+  renderResults();
+}
+
+async function runBarcodeSearch() {
+  const code = barcodeQuery.trim();
+  if (!code) { pendingMatches = []; renderResults(); return; }
+  searchLoading = true;
+  renderResults();
+  try {
+    const result = await lookupBarcode(code);
+    pendingMatches = result ? [result] : [];
+  } catch (_) { pendingMatches = []; }
+  searchLoading = false;
+  renderResults();
+}
+
+/* ---- render ---- */
+function totals(){
+  return todaysLog().reduce((t,e) => { t.cal+=e.cal; t.p+=e.p; t.c+=e.c; t.f+=e.f; return t; }, {cal:0,p:0,c:0,f:0});
+}
+
 function summaryHtml(){
-  const t = totals();
-  const goal = goalCal();
-  const remaining = goal - t.cal;
-  const over = remaining < 0;
-  const pct = Math.min(100, goal > 0 ? (t.cal / goal) * 100 : 0);
-
-  // MyFitnessPal-style: Goal − Food = Remaining
-  const cell = (cls, n, l) => '<div class="calCell ' + cls + '"><span class="n">' + round(n) + '</span><span class="l">' + l + '</span></div>';
-  const head = '<div class="calHead">'
-    + '<div class="calMath">'
-    + cell('', goal, 'goal')
-    + '<span class="calOp">−</span>'
-    + cell('', t.cal, 'food')
-    + '<span class="calOp">=</span>'
-    + cell('remain' + (over ? ' over' : ''), Math.abs(remaining), over ? 'over' : 'remaining')
-    + '</div>'
-    + '<div class="goalEdit"><span class="calCell"><span class="l">daily goal</span></span>'
-    + '<input class="fieldInput" id="goal" type="number" min="0" step="50" value="' + goal + '" /></div>'
-    + '</div>';
-  const bar = '<div class="bar"><div class="barFill' + (over ? ' over' : '') + '" style="width:' + pct + '%"></div></div>';
-
-  const box = (accent, val, unit, label) =>
-    '<div class="macroBox" data-accent="' + accent + '"><span class="macroVal">' + round(val) + (unit||'') + '</span><span class="macroLabel">' + label + '</span></div>';
+  const t = totals(); const goal = goalCal(); const remaining = goal - t.cal;
+  const over = remaining < 0; const pct = Math.min(100, goal > 0 ? (t.cal/goal)*100 : 0);
+  const cell = (cls,n,l) => '<div class="calCell ' + cls + '"><span class="n">' + Math.round(n) + '</span><span class="l">' + l + '</span></div>';
   return '<section class="card"><span class="cardName">Today</span>'
-    + head + bar
+    + '<div class="calHead"><div class="calMath">'
+    + cell('', goal, 'goal') + '<span class="calOp">−</span>'
+    + cell('', t.cal, 'food') + '<span class="calOp">=</span>'
+    + cell('remain' + (over?' over':''), Math.abs(remaining), over?'over':'remaining')
+    + '</div><div class="goalEdit"><span class="calCell"><span class="l">daily goal</span></span>'
+    + '<input class="fieldInput" id="goal" type="number" min="0" step="50" value="' + goal + '" /></div></div>'
+    + '<div class="bar"><div class="barFill' + (over?' over':'') + '" style="width:' + pct + '%"></div></div>'
     + '<div class="macroGrid" style="margin-top:var(--space-4)">'
-    + box('p', t.p, 'g', 'protein')
-    + box('c', t.c, 'g', 'carbs')
-    + box('f', t.f, 'g', 'fat')
-    + box('cal', t.cal, '', 'calories')
+    + macroBox('p', t.p, 'g', 'protein') + macroBox('c', t.c, 'g', 'carbs')
+    + macroBox('f', t.f, 'g', 'fat') + macroBox('cal', t.cal, '', 'calories')
     + '</div></section>';
 }
-
-function resultsInner(){
-  const q = query.trim().toLowerCase();
-  matches = q ? FOODS.filter(f => f.name.toLowerCase().includes(q)).slice(0, 8) : [];
-  if (!q) return '<p class="empty">Start typing to find a food…</p>';
-  if (!matches.length) return '<p class="empty">No match. (Add it to the FOODS list in macros.html.)</p>';
-  return matches.map((f, i) =>
-    '<div class="foodRow"><div><div class="foodName">' + esc(f.name) + '</div>'
-    + '<div class="meta">' + f.cal + ' kcal · ' + f.p + 'P / ' + f.c + 'C / ' + f.f + 'F per 100g</div></div>'
-    + '<div style="display:flex;align-items:center;gap:8px;">'
-    + '<input class="fieldInput gramInput" type="number" min="0" placeholder="g" data-grams="' + i + '" />'
-    + '<button class="btn btn-primary" data-add="' + i + '">Add</button></div></div>').join('');
+function macroBox(accent,val,unit,label){
+  return '<div class="macroBox" data-accent="' + accent + '"><span class="macroVal">' + Math.round(val) + (unit||'') + '</span><span class="macroLabel">' + label + '</span></div>';
 }
 
+const hasBarcodeDetector = typeof BarcodeDetector !== 'undefined';
+
 function searchHtml(){
+  const scanBtnHtml = hasBarcodeDetector
+    ? '<button class="scanBtn" id="scanBtn" title="Scan barcode with camera" aria-label="Scan">'
+      + '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9V5a2 2 0 0 1 2-2h4"/><path d="M15 3h4a2 2 0 0 1 2 2v4"/><path d="M21 15v4a2 2 0 0 1-2 2h-4"/><path d="M9 21H5a2 2 0 0 1-2-2v-4"/><line x1="7" y1="8" x2="7" y2="16"/><line x1="10" y1="8" x2="10" y2="16"/><line x1="14" y1="8" x2="14" y2="16"/><line x1="17" y1="8" x2="17" y2="16"/></svg>'
+      + '</button>'
+    : '';
+
+  const textBlock = '<div class="searchRow">'
+    + '<input class="fieldInput" id="q" type="text" placeholder="Search foods…" value="' + esc(textQuery) + '" autocomplete="off" autocorrect="off" />'
+    + '</div>';
+
+  const barcodeBlock = '<div class="searchRow">'
+    + '<input class="fieldInput" id="barcodeInput" type="text" inputmode="numeric" placeholder="Type or paste barcode number…" value="' + esc(barcodeQuery) + '" autocomplete="off" />'
+    + scanBtnHtml
+    + '</div>';
+
   return '<h2 class="sectionTitle">Add food</h2>'
-    + '<div class="search"><input class="fieldInput" id="q" type="text" placeholder="Search foods (e.g. chicken, rice, banana)" value="' + esc(query) + '" autocomplete="off" /></div>'
-    + '<div class="results" id="results">' + resultsInner() + '</div>';
+    + '<div class="modeSwitcher">'
+    + '<button class="modeBtn' + (searchMode==='text'?' active':'') + '" data-mode="text">🔍 Search</button>'
+    + '<button class="modeBtn' + (searchMode==='barcode'?' active':'') + '" data-mode="barcode">📷 Barcode</button>'
+    + '</div>'
+    + (searchMode === 'text' ? textBlock : barcodeBlock)
+    + '<div class="results" id="results"></div>';
+}
+
+function foodCardHtml(f, i) {
+  const badge = f.fromOFF ? '<span class="offBadge">OFF</span>' : '';
+  const brandLine = f.brand ? '<div class="foodBrand">' + esc(f.brand) + '</div>' : '';
+  return '<div class="foodRow">'
+    + '<div><div class="foodName">' + esc(f.name) + badge + '</div>'
+    + brandLine
+    + '<div class="meta">' + round(f.cal) + ' kcal · ' + round(f.p) + 'P / ' + round(f.c) + 'C / ' + round(f.f) + 'F per 100g</div></div>'
+    + '<div style="display:flex;align-items:center;gap:8px;">'
+    + '<input class="fieldInput gramInput" type="number" min="0" placeholder="g" data-grams="' + i + '" />'
+    + '<button class="btn btn-primary" data-add="' + i + '">Add</button></div></div>';
+}
+
+function renderResults() {
+  const el = document.getElementById('results');
+  if (!el) return;
+
+  if (searchMode === 'text') {
+    const q = textQuery.trim();
+    if (!q) { el.innerHTML = '<p class="empty">Start typing to search millions of foods…</p>'; return; }
+    if (!pendingMatches.length && searchLoading) {
+      el.innerHTML = '<div class="loadingDots"><span></span><span></span><span></span></div>';
+      return;
+    }
+    if (!pendingMatches.length) { el.innerHTML = '<p class="empty">No results found.</p>'; return; }
+    let html = pendingMatches.map(foodCardHtml).join('');
+    if (searchLoading) html = '<div class="loadingDots"><span></span><span></span><span></span></div>' + html;
+    el.innerHTML = html;
+  } else {
+    const code = barcodeQuery.trim();
+    if (!code) { el.innerHTML = '<p class="empty">Enter a barcode number or tap the scanner icon.</p>'; return; }
+    if (searchLoading) { el.innerHTML = '<div class="loadingDots"><span></span><span></span><span></span></div>'; return; }
+    if (!pendingMatches.length) { el.innerHTML = '<p class="empty">Barcode not found in OpenFoodFacts.</p>'; return; }
+    el.innerHTML = pendingMatches.map(foodCardHtml).join('');
+  }
 }
 
 function logHtml(){
   const log = todaysLog();
   if (!log.length) return '<h2 class="sectionTitle">Logged today</h2><p class="empty">Nothing logged yet.</p>';
-  const rows = log.map((e, i) =>
-    '<div class="logRow"><div><div class="foodName">' + esc(e.name) + ' <span class="meta">' + e.grams + 'g</span></div>'
+  const rows = log.map((e,i) =>
+    '<div class="logRow"><div><div class="foodName">' + esc(e.name) + ' <span style="color:var(--muted);font-size:12px">' + e.grams + 'g</span></div>'
     + '<div class="nums">' + round(e.cal) + ' kcal · ' + round(e.p) + 'P / ' + round(e.c) + 'C / ' + round(e.f) + 'F</div></div>'
     + '<button class="xBtn" data-del="' + i + '" title="Remove">×</button></div>').join('');
   return '<h2 class="sectionTitle">Logged today</h2><div class="logList">' + rows + '</div>';
@@ -193,41 +321,69 @@ function headerHtml(){
 }
 
 function render(){
-  document.getElementById('app').innerHTML =
-    headerHtml() + summaryHtml() + searchHtml() + logHtml();
+  document.getElementById('app').innerHTML = headerHtml() + summaryHtml() + searchHtml() + logHtml();
   document.getElementById('themeSeg').innerHTML = Patron.switcherHtml();
+  renderResults();
 }
 
 /* ---- events ---- */
 document.addEventListener('input', e => {
   if (e.target.id === 'q') {
-    query = e.target.value;
-    // re-render only the results list so the search box keeps focus + caret
-    document.getElementById('results').innerHTML = resultsInner();
+    textQuery = e.target.value;
+    pendingMatches = [];
+    clearTimeout(searchDebounce);
+    searchDebounce = setTimeout(runSearch, 350);
+    renderResults();
+  }
+  if (e.target.id === 'barcodeInput') {
+    barcodeQuery = e.target.value;
+    pendingMatches = [];
+    clearTimeout(searchDebounce);
+    searchDebounce = setTimeout(runBarcodeSearch, 500);
+    renderResults();
   }
   if (e.target.id === 'goal') {
     const n = Number(e.target.value);
     setGoalCal(isFinite(n) && n >= 0 ? n : 0);
-    render(); // refresh the Remaining number + bar live
-    document.getElementById('goal').focus(); // keep the cursor in the goal box
+    render();
+    document.getElementById('goal').focus();
   }
 });
 
 document.addEventListener('click', e => {
+  // Mode switcher
+  const modeBtn = e.target.closest('[data-mode]');
+  if (modeBtn) {
+    searchMode = modeBtn.dataset.mode;
+    pendingMatches = [];
+    render();
+    const inputId = searchMode === 'text' ? 'q' : 'barcodeInput';
+    setTimeout(() => { const el = document.getElementById(inputId); if (el) el.focus(); }, 60);
+    return;
+  }
+
+  // Barcode camera scan
+  if (e.target.closest('#scanBtn')) { openCamera(); return; }
+  if (e.target.closest('#camClose')) { closeCamera(); return; }
+
+  // Add food
   const add = e.target.closest('[data-add]');
   if (add) {
-    const f = matches[Number(add.getAttribute('data-add'))];
-    const gramsEl = document.querySelector('[data-grams="' + add.getAttribute('data-add') + '"]');
+    const idx = Number(add.getAttribute('data-add'));
+    const f = pendingMatches[idx];
+    const gramsEl = document.querySelector('[data-grams="' + idx + '"]');
     const grams = Number(gramsEl && gramsEl.value);
     if (!f || !isFinite(grams) || grams <= 0) { alert('Enter how many grams.'); return; }
     const k = grams / 100;
     const log = todaysLog();
-    log.push({ name: f.name, grams, cal: f.cal*k, p: f.p*k, c: f.c*k, f: f.f*k });
+    log.push({ name: f.name, grams, cal: r1(f.cal*k), p: r1(f.p*k), c: r1(f.c*k), f: r1(f.f*k) });
     setTodaysLog(log);
-    query = '';
+    pendingMatches = []; textQuery = ''; barcodeQuery = '';
     render();
     return;
   }
+
+  // Remove logged item
   const del = e.target.closest('[data-del]');
   if (del) {
     const log = todaysLog();
@@ -238,9 +394,45 @@ document.addEventListener('click', e => {
   }
 });
 
-// keep totals in sync if edited in another tab
-window.addEventListener('storage', e => { if (e.key === STORE_KEY) { store = loadAll(); render(); } });
+/* ---- barcode camera scan ---- */
+let camStream = null;
+let camInterval = null;
 
+async function openCamera() {
+  const overlay = document.getElementById('camOverlay');
+  const video   = document.getElementById('camVideo');
+  overlay.classList.add('open');
+  try {
+    camStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
+    video.srcObject = camStream;
+    await video.play();
+    const detector = new BarcodeDetector({ formats: ['ean_13','ean_8','upc_a','upc_e','code_128','code_39','qr_code'] });
+    camInterval = setInterval(async () => {
+      try {
+        const codes = await detector.detect(video);
+        if (codes.length) {
+          const raw = codes[0].rawValue;
+          closeCamera();
+          barcodeQuery = raw;
+          render();
+          runBarcodeSearch();
+        }
+      } catch (_) {}
+    }, 300);
+  } catch (err) {
+    closeCamera();
+    alert('Camera access denied or not available. Enter the barcode number manually.');
+  }
+}
+
+function closeCamera() {
+  clearInterval(camInterval); camInterval = null;
+  if (camStream) { camStream.getTracks().forEach(t => t.stop()); camStream = null; }
+  document.getElementById('camOverlay').classList.remove('open');
+  document.getElementById('camVideo').srcObject = null;
+}
+
+window.addEventListener('storage', e => { if (e.key === STORE_KEY) { store = loadAll(); render(); } });
 render();
 </script>
 </body>
