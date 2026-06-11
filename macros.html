@@ -22,14 +22,8 @@
 <link rel="stylesheet" href="theme.css" />
 
 <style>
-  .macroGrid { display:grid; grid-template-columns: repeat(4, 1fr); gap: var(--space-3); }
-  @media (max-width: 560px) { .macroGrid { grid-template-columns: repeat(2, 1fr); } }
-  .macroBox { display:flex; flex-direction:column; gap:4px; padding: var(--space-4); border:1px solid var(--border); border-radius: var(--radius-md); background: var(--surface); }
-  .macroBox[data-accent="cal"] { border-color: var(--brand-line); background: var(--brand-soft); }
-  .macroVal { font-family: var(--font-display); font-weight:600; font-size: var(--text-2xl); letter-spacing:-0.02em; font-variant-numeric: tabular-nums; }
-  .macroLabel { font-family: var(--font-mono); font-size:10px; letter-spacing:0.12em; text-transform:uppercase; color: var(--muted); }
-
-  .calHead { display:flex; align-items:center; justify-content:space-between; gap: var(--space-4); flex-wrap:wrap; margin-bottom: var(--space-4); }
+  /* Calorie header */
+  .calHead { display:flex; align-items:center; justify-content:space-between; gap: var(--space-4); flex-wrap:wrap; margin-bottom: var(--space-3); }
   .calMath { display:flex; align-items:center; gap: var(--space-5); flex-wrap:wrap; }
   .calCell { display:flex; flex-direction:column; gap:2px; }
   .calCell .n { font-family: var(--font-display); font-weight:600; font-size: var(--text-2xl); letter-spacing:-0.02em; font-variant-numeric: tabular-nums; }
@@ -38,10 +32,30 @@
   .calCell.remain .n { color: var(--brand); }
   .calCell.remain.over .n { color: var(--neg); }
   .goalEdit { display:flex; align-items:center; gap:8px; }
-  .goalEdit .fieldInput { width: 92px; }
-  .bar { height: 10px; border-radius: var(--radius-pill); background: var(--track); overflow:hidden; }
+  .goalEdit .fieldInput { width: 82px; }
+  .bar { height: 8px; border-radius: var(--radius-pill); background: var(--track); overflow:hidden; margin-bottom: var(--space-4); }
   .barFill { height:100%; border-radius: var(--radius-pill); background: var(--brand); transition: width var(--duration) var(--ease-premium); }
   .barFill.over { background: var(--neg); }
+
+  /* Macro progress rows */
+  .macroRows { display:flex; flex-direction:column; gap: var(--space-3); margin-top: var(--space-2); }
+  .macroRow { display:flex; flex-direction:column; gap:5px; }
+  .macroRowHead { display:flex; align-items:center; justify-content:space-between; }
+  .macroRowLabel { font-family: var(--font-mono); font-size:10px; font-weight:700; letter-spacing:0.12em; text-transform:uppercase; }
+  .macroRowLabel.p { color: #46E0A8; }
+  .macroRowLabel.c { color: #FBBF24; }
+  .macroRowLabel.f { color: #FB7185; }
+  .macroRowRight { display:flex; align-items:center; gap:6px; }
+  .macroRowVal { font-family: var(--font-mono); font-size:12px; font-variant-numeric: tabular-nums; color: var(--muted-strong); }
+  .macroGoalInput { width:56px; font-family: var(--font-mono); font-size:12px; text-align:center; padding:2px 6px; border-radius:6px; border:1px solid var(--border); background: var(--surface-2,var(--surface)); color: var(--text); }
+  .macroGoalInput:focus { outline:none; border-color: var(--brand-line); }
+  .macroBarWrap { height:6px; border-radius:999px; background: var(--track); overflow:hidden; }
+  .macroBarFill { height:100%; border-radius:999px; transition: width 0.35s ease; }
+  .macroBarFill.p  { background: #46E0A8; }
+  .macroBarFill.c  { background: #FBBF24; }
+  .macroBarFill.f  { background: #FB7185; }
+  .macroBarFill.over { background: var(--neg); }
+  .macroRowRemain { font-size:10px; color: var(--muted); text-align:right; }
 
   /* Search section */
   .sectionTitle { font-family: var(--font-display); font-weight:600; font-size: var(--text-lg); margin: var(--space-8) 0 0; }
@@ -139,6 +153,12 @@ function todaysLog(){ return store[todayKey()] || []; }
 function setTodaysLog(list){ store[todayKey()] = list; saveAll(store); }
 function goalCal(){ return store.goalCal != null ? store.goalCal : 2000; }
 function setGoalCal(n){ store.goalCal = n; saveAll(store); }
+function goalP(){ return store.goalP != null ? store.goalP : 150; }
+function setGoalP(n){ store.goalP = n; saveAll(store); }
+function goalC(){ return store.goalC != null ? store.goalC : 250; }
+function setGoalC(n){ store.goalC = n; saveAll(store); }
+function goalF(){ return store.goalF != null ? store.goalF : 70; }
+function setGoalF(n){ store.goalF = n; saveAll(store); }
 
 function esc(s){ return String(s == null ? '' : s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 function round(n){ return Math.round(n * 10) / 10; }
@@ -222,24 +242,43 @@ function totals(){
 }
 
 function summaryHtml(){
-  const t = totals(); const goal = goalCal(); const remaining = goal - t.cal;
-  const over = remaining < 0; const pct = Math.min(100, goal > 0 ? (t.cal/goal)*100 : 0);
+  const t = totals();
+  const gcal = goalCal(), gp = goalP(), gc = goalC(), gf = goalF();
+  const remCal = gcal - t.cal;
+  const overCal = remCal < 0;
+  const pctCal = Math.min(100, gcal > 0 ? (t.cal / gcal) * 100 : 0);
   const cell = (cls,n,l) => '<div class="calCell ' + cls + '"><span class="n">' + Math.round(n) + '</span><span class="l">' + l + '</span></div>';
+
+  function macroRow(cls, label, consumed, target, goalId) {
+    const pct  = Math.min(100, target > 0 ? (consumed / target) * 100 : 0);
+    const rem  = Math.round(target - consumed);
+    const over = rem < 0;
+    return '<div class="macroRow">'
+      + '<div class="macroRowHead">'
+      + '<span class="macroRowLabel ' + cls + '">' + label + '</span>'
+      + '<div class="macroRowRight">'
+      + '<span class="macroRowVal">' + Math.round(consumed) + 'g</span>'
+      + '<span class="macroRowVal" style="color:var(--muted)">/</span>'
+      + '<input class="macroGoalInput" id="' + goalId + '" type="number" min="0" step="1" value="' + target + '" title="Daily target" />g'
+      + '</div></div>'
+      + '<div class="macroBarWrap"><div class="macroBarFill ' + cls + (over?' over':'') + '" style="width:' + pct + '%"></div></div>'
+      + '<div class="macroRowRemain">' + (over ? Math.abs(rem) + 'g over' : rem + 'g remaining') + '</div>'
+      + '</div>';
+  }
+
   return '<section class="card"><span class="cardName">Today</span>'
     + '<div class="calHead"><div class="calMath">'
-    + cell('', goal, 'goal') + '<span class="calOp">−</span>'
-    + cell('', t.cal, 'food') + '<span class="calOp">=</span>'
-    + cell('remain' + (over?' over':''), Math.abs(remaining), over?'over':'remaining')
-    + '</div><div class="goalEdit"><span class="calCell"><span class="l">daily goal</span></span>'
-    + '<input class="fieldInput" id="goal" type="number" min="0" step="50" value="' + goal + '" /></div></div>'
-    + '<div class="bar"><div class="barFill' + (over?' over':'') + '" style="width:' + pct + '%"></div></div>'
-    + '<div class="macroGrid" style="margin-top:var(--space-4)">'
-    + macroBox('p', t.p, 'g', 'protein') + macroBox('c', t.c, 'g', 'carbs')
-    + macroBox('f', t.f, 'g', 'fat') + macroBox('cal', t.cal, '', 'calories')
+    + cell('', gcal, 'goal') + '<span class="calOp">−</span>'
+    + cell('', t.cal, 'eaten') + '<span class="calOp">=</span>'
+    + cell('remain' + (overCal?' over':''), Math.abs(remCal), overCal?'over':'left')
+    + '</div><div class="goalEdit"><span class="calCell"><span class="l">kcal goal</span></span>'
+    + '<input class="fieldInput" id="goalCal" type="number" min="0" step="50" value="' + gcal + '" /></div></div>'
+    + '<div class="bar"><div class="barFill' + (overCal?' over':'') + '" style="width:' + pctCal + '%"></div></div>'
+    + '<div class="macroRows">'
+    + macroRow('p', 'Protein', t.p, gp, 'goalP')
+    + macroRow('c', 'Carbs',   t.c, gc, 'goalC')
+    + macroRow('f', 'Fat',     t.f, gf, 'goalF')
     + '</div></section>';
-}
-function macroBox(accent,val,unit,label){
-  return '<div class="macroBox" data-accent="' + accent + '"><span class="macroVal">' + Math.round(val) + (unit||'') + '</span><span class="macroLabel">' + label + '</span></div>';
 }
 
 const hasBarcodeDetector = typeof BarcodeDetector !== 'undefined';
@@ -342,11 +381,25 @@ document.addEventListener('input', e => {
     searchDebounce = setTimeout(runBarcodeSearch, 500);
     renderResults();
   }
-  if (e.target.id === 'goal') {
+  if (e.target.id === 'goalCal') {
     const n = Number(e.target.value);
     setGoalCal(isFinite(n) && n >= 0 ? n : 0);
-    render();
-    document.getElementById('goal').focus();
+    render(); document.getElementById('goalCal').focus();
+  }
+  if (e.target.id === 'goalP') {
+    const n = Number(e.target.value);
+    setGoalP(isFinite(n) && n >= 0 ? n : 0);
+    render(); document.getElementById('goalP').focus();
+  }
+  if (e.target.id === 'goalC') {
+    const n = Number(e.target.value);
+    setGoalC(isFinite(n) && n >= 0 ? n : 0);
+    render(); document.getElementById('goalC').focus();
+  }
+  if (e.target.id === 'goalF') {
+    const n = Number(e.target.value);
+    setGoalF(isFinite(n) && n >= 0 ? n : 0);
+    render(); document.getElementById('goalF').focus();
   }
 });
 
