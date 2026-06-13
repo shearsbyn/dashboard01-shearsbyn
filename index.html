@@ -590,7 +590,7 @@ function progressSectionHtml() {
   const DAY_WIN_KEY = 'goals:dayWindow';
   function hm2dec(s){ if(!s) return null; const p=String(s).split(':'); const h=Number(p[0]),m=Number(p[1]||0); return isFinite(h)?h+m/60:null; }
   function dec2clock(d){ const h=Math.floor(((d%24)+24)%24); let m=Math.round(((d%1)+1)%1*60); let hh=h; if(m===60){m=0;hh=(hh+1)%24;} const ap=hh<12?'AM':'PM'; let h12=hh%12; if(!h12)h12=12; return h12+':'+String(m).padStart(2,'0')+' '+ap; }
-  let wakeH=8, sleepH=24;
+  let wakeH=6.5, sleepH=22;
   try {
     const prefs = lsGet(DAY_WIN_KEY) || {};
     const vh = health;
@@ -721,8 +721,8 @@ function renderModal(){
     bodyHtml = '<div class="fieldAutoNote">⚡ Recovery % is auto-calculated from your HRV, resting HR &amp; sleep — no manual entry needed.' + (h && h.recovery != null ? ' Last score: <strong>' + Math.round(h.recovery) + '%</strong>.' : '') + '</div>'
       + '<div class="fieldGrid">'
       + '<div class="field"><label class="fieldLabel" for="f-sleep">Sleep (hours)</label><input id="f-sleep" class="fieldInput" type="number" min="0" max="24" step="0.1" inputmode="decimal" placeholder="7.5" value="' + esc(v('sleepHours')) + '" /></div>'
-      + '<div class="field"><label class="fieldLabel" for="f-bed">Bedtime</label><input id="f-bed" class="fieldInput" type="time" value="' + esc(v('bedtime')) + '" /></div>'
-      + '<div class="field"><label class="fieldLabel" for="f-wake">Wake time</label><input id="f-wake" class="fieldInput" type="time" value="' + esc(v('wakeTime')) + '" /></div>'
+      + '<div class="field"><label class="fieldLabel" for="f-bed">Bedtime</label><input id="f-bed" class="fieldInput" type="time" value="' + esc(h && h.bedtime != null ? h.bedtime : '22:00') + '" /></div>'
+      + '<div class="field"><label class="fieldLabel" for="f-wake">Wake time</label><input id="f-wake" class="fieldInput" type="time" value="' + esc(h && h.wakeTime != null ? h.wakeTime : '06:30') + '" /></div>'
       + '<div class="field"><label class="fieldLabel" for="f-hrv">HRV (ms)</label><input id="f-hrv" class="fieldInput" type="number" min="0" max="300" inputmode="numeric" placeholder="—" value="' + esc(v('hrv')) + '" /></div>'
       + '<div class="field"><label class="fieldLabel" for="f-rhr">Resting HR (bpm)</label><input id="f-rhr" class="fieldInput" type="number" min="20" max="150" inputmode="numeric" placeholder="—" value="' + esc(v('rhr')) + '" /></div>'
       + '<div class="field fieldFull"><label class="fieldLabel" for="f-target">Sleep target (hours)</label><input id="f-target" class="fieldInput" type="number" min="4" max="12" step="0.5" inputmode="decimal" placeholder="8" value="' + esc(h && h.sleepTargetHours != null ? h.sleepTargetHours : 8) + '" /></div>'
