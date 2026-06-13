@@ -1160,7 +1160,7 @@ body::after {
     const hoursEl = document.getElementById('dayRingHours');
     const estEl   = document.getElementById('dayRingEst');
     const estSub  = document.getElementById('dayRingEstSub');
-    if (hoursEl) hoursEl.textContent = dec2clock(WAKE_HOUR) + ' – ' + dec2clock(SLEEP_HOUR);
+    if (hoursEl) hoursEl.textContent = dec2clock(SLEEP_HOUR) + ' – ' + dec2clock(WAKE_HOUR);
     if (!estEl || !estSub) return;
     const est = estimatedBedtime(w);
     if (est) {
