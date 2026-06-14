@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<link rel="manifest" href="manifest.webmanifest" />
+<meta name="theme-color" content="#05080a" />
+<meta name="mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-title" content="Liam" />
+<link rel="apple-touch-icon" href="apple-touch-icon.png" />
+<link rel="icon" type="image/svg+xml" href="icon.svg" />
+<title>Meds · Liam</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,600;1,500;1,600&family=JetBrains+Mono:wght@400;500;600&family=Exo+2:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+<style>
+:root{
+  color-scheme:dark;
+  --bg:#05080a; --bg2:#070d0a; --panel:rgba(18,30,24,0.55); --panel2:rgba(14,24,19,0.9);
+  --fg:#eafff4; --muted:rgba(190,220,205,0.5); --muted2:rgba(190,220,205,0.8);
+  --line:rgba(52,211,153,0.16); --line2:rgba(52,211,153,0.34);
+  --accent:#34D399; --accent2:#6EE7B7; --glow:rgba(52,211,153,0.55); --warn:#FBBF24; --low:#FB7185;
+  --serif:'Playfair Display',Georgia,serif; --mono:'JetBrains Mono',monospace; --ui:'Exo 2',-apple-system,sans-serif;
+  --radius:20px; --radius-sm:13px; --pill:999px; --ease:cubic-bezier(.16,1,.3,1);
+}
+*{box-sizing:border-box} html,body{margin:0;padding:0}
+body{ background:var(--bg); color:var(--fg); font-family:var(--ui); -webkit-font-smoothing:antialiased; }
+.page{ position:relative; min-height:100dvh; padding:clamp(20px,4vw,40px) clamp(16px,4vw,40px) 80px; isolation:isolate; overflow:hidden; }
+.page::before{ content:''; position:absolute; inset:0; z-index:-2; background:radial-gradient(60% 45% at 50% 20%,rgba(52,211,153,0.10),transparent 70%); pointer-events:none; }
+.dust{ position:absolute; inset:0; z-index:-1; pointer-events:none; }
+.dust i{ position:absolute; width:2px; height:2px; border-radius:50%; background:var(--accent2); opacity:.18; animation:tw 5s var(--ease) infinite; }
+@keyframes tw{ 0%,100%{opacity:.06; transform:translateY(0) scale(.8)} 50%{opacity:.5; transform:translateY(-10px) scale(1.3)} }
+.shell{ max-width:680px; margin:0 auto; }
+.top{ display:flex; align-items:center; justify-content:space-between; gap:14px; margin-bottom:26px; flex-wrap:wrap; }
+.htitle{ font-family:var(--serif); font-weight:500; font-size:clamp(30px,5vw,46px); margin:0; }
+.htitle em{ font-style:italic; color:var(--accent); }
+.hsub{ font-family:var(--mono); font-size:11px; letter-spacing:.2em; text-transform:uppercase; color:var(--muted); margin:8px 0 0; }
+.backLink{ font-family:var(--mono); font-size:11px; letter-spacing:.14em; text-transform:uppercase; color:var(--accent2); text-decoration:none; border:1px solid var(--line2); border-radius:var(--pill); padding:9px 16px; }
+.backLink:hover{ background:rgba(52,211,153,.08); }
+.card{ border:1px solid var(--line); border-radius:var(--radius); background:var(--panel); padding:22px; margin-bottom:16px; }
+.hero{ display:flex; align-items:baseline; justify-content:space-between; gap:12px; flex-wrap:wrap; }
+.heroV{ font-family:var(--serif); font-style:italic; font-weight:600; font-size:36px; }
+.heroV small{ font-family:var(--mono); font-size:12px; color:var(--muted); font-style:normal; }
+.heroR{ font-family:var(--mono); font-size:10px; letter-spacing:.12em; text-transform:uppercase; color:var(--muted); }
+.eyebrow{ font-family:var(--mono); font-size:10px; letter-spacing:.18em; text-transform:uppercase; color:var(--accent); margin:0 0 14px; }
+/* time control */
+.timeRow{ display:flex; align-items:center; gap:10px; margin-bottom:14px; flex-wrap:wrap; }
+.timeLab{ font-family:var(--mono); font-size:10px; letter-spacing:.1em; text-transform:uppercase; color:var(--muted); }
+.timeIn{ background:rgba(255,255,255,.04); border:1px solid var(--line); border-radius:10px; padding:9px 12px; color:var(--fg); font-family:var(--ui); font-size:14px; }
+.timeIn:focus{ outline:none; border-color:var(--accent); }
+.nowBtn{ appearance:none; cursor:pointer; background:rgba(52,211,153,.08); border:1px solid var(--line2); border-radius:var(--pill); color:var(--accent2); font-family:var(--mono); font-size:11px; padding:8px 14px; }
+.nowBtn.on{ background:linear-gradient(120deg,var(--accent),var(--accent2)); color:#04130c; border-color:transparent; font-weight:600; }
+/* search */
+.searchWrap{ position:relative; margin-bottom:12px; }
+.searchIn{ width:100%; background:rgba(255,255,255,.04); border:1px solid var(--line); border-radius:var(--radius-sm); padding:11px 14px 11px 38px; color:var(--fg); font-family:var(--ui); font-size:14px; }
+.searchIn:focus{ outline:none; border-color:var(--accent); }
+.searchIcon{ position:absolute; left:13px; top:50%; transform:translateY(-50%); color:var(--muted); display:flex; }
+.results{ display:flex; flex-direction:column; gap:6px; }
+.results:not(:empty){ margin-bottom:12px; }
+.result{ display:flex; align-items:center; justify-content:space-between; gap:10px; padding:11px 13px; border-radius:var(--radius-sm); border:1px solid var(--line); background:rgba(255,255,255,.02); cursor:pointer; }
+.result:hover{ border-color:var(--accent); background:rgba(52,211,153,.08); }
+.resultName{ font-size:14px; color:var(--fg); }
+.resultMg{ font-family:var(--mono); font-size:11px; color:var(--accent2); white-space:nowrap; }
+.resultMg em{ color:var(--muted); font-style:normal; }
+.noMatch{ font-family:var(--mono); font-size:11px; color:var(--muted); padding:4px 2px; }
+.chips{ display:grid; grid-template-columns:repeat(auto-fill,minmax(110px,1fr)); gap:8px; }
+.chip{ appearance:none; cursor:pointer; padding:11px 12px; border-radius:var(--radius-sm); border:1px solid var(--line2); background:rgba(52,211,153,.05); text-align:left; transition:all .15s var(--ease); }
+.chip:hover{ background:rgba(52,211,153,.13); border-color:var(--accent); }
+.chipName{ display:block; font-size:13px; font-weight:600; color:var(--fg); }
+.chipMg{ display:block; font-family:var(--mono); font-size:10px; color:var(--muted); margin-top:3px; }
+.chipMg em{ color:var(--accent2); font-style:normal; font-weight:600; }
+.addRow{ display:flex; gap:8px; margin-top:12px; flex-wrap:wrap; }
+.addRow input{ background:rgba(255,255,255,.04); border:1px solid var(--line); border-radius:10px; padding:10px 12px; color:var(--fg); font-family:var(--ui); font-size:13px; }
+.addName{ flex:1; min-width:120px; } .addMg{ width:84px; }
+.addBtn{ appearance:none; cursor:pointer; padding:0 18px; border:0; border-radius:10px; font-family:var(--mono); font-size:12px; font-weight:600; text-transform:uppercase; letter-spacing:.06em; color:#04130c; background:var(--accent); }
+/* dose cards */
+.dose{ border:1px solid var(--line); border-radius:var(--radius-sm); background:rgba(255,255,255,.02); padding:15px 16px; margin-bottom:10px; }
+.doseTop{ display:flex; align-items:baseline; justify-content:space-between; gap:10px; }
+.doseName{ font-family:var(--serif); font-style:italic; font-size:18px; }
+.doseName small{ font-family:var(--mono); font-style:normal; font-size:11px; color:var(--muted); margin-left:6px; }
+.doseX{ cursor:pointer; color:var(--muted); width:24px; height:24px; border-radius:50%; display:grid; place-items:center; font-size:15px; }
+.doseX:hover{ color:var(--low); background:rgba(251,113,133,.12); }
+.dosePhase{ display:inline-block; font-family:var(--mono); font-size:9px; letter-spacing:.1em; text-transform:uppercase; padding:3px 9px; border-radius:var(--pill); margin:8px 0; }
+.dosePhase.up{ color:#04130c; background:var(--accent2); }
+.dosePhase.peak{ color:#04130c; background:var(--accent); }
+.dosePhase.fade{ color:#1a1206; background:var(--warn); }
+.dosePhase.off{ color:var(--muted); border:1px solid var(--line); }
+/* mini timeline */
+.tl{ position:relative; height:30px; margin-top:6px; }
+.tlBar{ position:absolute; top:13px; left:0; right:0; height:4px; border-radius:99px; background:rgba(255,255,255,.06); overflow:hidden; }
+.tlFill{ position:absolute; top:0; left:0; bottom:0; border-radius:99px; background:linear-gradient(90deg,var(--accent),var(--warn)); }
+.tlMark{ position:absolute; top:7px; width:2px; height:16px; background:var(--fg); opacity:.5; }
+.tlNow{ position:absolute; top:4px; width:12px; height:12px; border-radius:50%; background:var(--warn); box-shadow:0 0 10px var(--warn); transform:translateX(-50%); }
+.tlLabels{ display:flex; justify-content:space-between; font-family:var(--mono); font-size:9px; color:var(--muted); margin-top:6px; }
+.doseInfo{ font-family:var(--mono); font-size:11px; color:var(--muted2); margin-top:8px; line-height:1.6; }
+.doseInfo b{ color:var(--fg); }
+.empty{ text-align:center; padding:30px 16px; font-size:13.5px; color:var(--muted2); line-height:1.6; }
+.foot{ text-align:center; font-family:var(--mono); font-size:10px; color:var(--muted); margin-top:24px; opacity:.7; line-height:1.6; }
+@media (prefers-reduced-motion:reduce){ .dust i{animation:none} }
+</style>
+</head>
+<body>
+<main class="page"><div class="dust" id="dust"></div><div class="shell" id="app"></div></main>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="db.js?v=15"></script>
+<script>
+/* ============================================================
+ * MEDS & SUBSTANCES — log any prescription / nicotine / nootropic,
+ * now or back-dated ("I took it at 9:14"), cancel accidental taps, and
+ * see live onset → peak → comedown → wear-off from a PK model.
+ * Shares storage with the Peak tracker (peak_meds_v1).
+ * ============================================================ */
+function readLS(k){ try{ const r=localStorage.getItem(k); return r?JSON.parse(r):null; }catch(e){ return null; } }
+function profile(){ return readLS('patron_profile_v1'); }
+function esc(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function clamp(x,a,b){ return Math.max(a,Math.min(b,x)); }
+
+/* Profiles: onset (first effect), tPeak (peak), dur (≈ duration), lift (peak focus
+ * points at the reference dose), ref (mg). Population estimates from published PK. */
+const SUB_DB=[
+  {name:'Concerta',mg:36,ref:36,onset:1,tPeak:7,dur:12,lift:30,cat:'rx'},
+  {name:'Ritalin IR',mg:10,ref:10,onset:0.4,tPeak:1.5,dur:4,lift:24,cat:'rx'},
+  {name:'Ritalin LA',mg:20,ref:20,onset:0.7,tPeak:5,dur:8,lift:28,cat:'rx'},
+  {name:'Focalin',mg:10,ref:10,onset:0.4,tPeak:1.5,dur:5,lift:25,cat:'rx'},
+  {name:'Focalin XR',mg:20,ref:20,onset:0.7,tPeak:5,dur:10,lift:28,cat:'rx'},
+  {name:'Adderall IR',mg:10,ref:10,onset:0.5,tPeak:2,dur:5,lift:26,cat:'rx'},
+  {name:'Adderall XR',mg:20,ref:20,onset:0.8,tPeak:5,dur:10,lift:30,cat:'rx'},
+  {name:'Vyvanse',mg:40,ref:40,onset:1.5,tPeak:5,dur:12,lift:30,cat:'rx'},
+  {name:'Modafinil',mg:200,ref:200,onset:1,tPeak:3,dur:12,lift:24,cat:'rx'},
+  {name:'Armodafinil',mg:150,ref:150,onset:1.2,tPeak:4,dur:14,lift:24,cat:'rx'},
+  {name:'Strattera',mg:40,ref:40,onset:1,tPeak:3,dur:10,lift:9,cat:'rx'},
+  {name:'Zyn (3mg)',mg:3,ref:3,onset:0.1,tPeak:0.4,dur:1.2,lift:9,cat:'nic'},
+  {name:'Zyn (6mg)',mg:6,ref:6,onset:0.1,tPeak:0.4,dur:1.4,lift:13,cat:'nic'},
+  {name:'Velo (4mg)',mg:4,ref:4,onset:0.1,tPeak:0.4,dur:1.3,lift:11,cat:'nic'},
+  {name:'Nicotine pouch',mg:4,ref:4,onset:0.1,tPeak:0.45,dur:1.3,lift:11,cat:'nic'},
+  {name:'Vape',mg:1,ref:1,onset:0.05,tPeak:0.15,dur:0.8,lift:8,cat:'nic'},
+  {name:'Cigarette',mg:1,ref:1,onset:0.05,tPeak:0.15,dur:0.9,lift:8,cat:'nic'},
+  {name:'L-Tyrosine',mg:500,ref:500,onset:0.5,tPeak:1.5,dur:4,lift:8,cat:'noot'},
+  {name:'L-Theanine',mg:200,ref:200,onset:0.4,tPeak:1,dur:4,lift:5,cat:'noot'},
+  {name:'Rhodiola',mg:200,ref:200,onset:0.5,tPeak:1.5,dur:5,lift:7,cat:'noot'},
+];
+
+const LS='peak_meds_v1';
+function store(){ const r=readLS(LS); return {logs:(r&&Array.isArray(r.logs))?r.logs:[], custom:(r&&Array.isArray(r.custom))?r.custom:[]}; }
+function save(s){ try{ localStorage.setItem(LS,JSON.stringify(s)); }catch(e){} if(window.PatronDB&&PatronDB.isCloud())PatronDB.set('peakmeds',s); render(); }
+let state=store();
+let query=''; let searchOpen=false; let logTime=null; // null = "now"
+
+function customs(){ return state.custom; }
+function allSubs(){ return customs().concat(SUB_DB); }
+function dayKey(d){ d=d||new Date(); return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
+function fmtClock(ms){ const d=new Date(ms); let h=d.getHours(),m=d.getMinutes(); const ap=h<12?'am':'pm'; h=h%12||12; return h+':'+String(m).padStart(2,'0')+ap; }
+
+/* PK: smooth onset→peak→exp decay, normalized to peak=1 at tPeak */
+function subNorm(tau,tPeak,dur){ if(tau<0)return 0; tPeak=tPeak||1; dur=dur||4; if(tau<=tPeak)return 0.5-0.5*Math.cos(Math.PI*tau/tPeak); const decay=Math.max(0.3,(dur-tPeak)/2.2); return Math.exp(-(tau-tPeak)/decay); }
+function effectOf(l,nowMs){ const tau=(nowMs-l.t)/3600000; const dose=Math.min(2.2,(l.mg||l.ref||1)/(l.ref||l.mg||1)); return (l.lift||15)*dose*subNorm(tau,l.tPeak,l.dur); }
+function boardNow(){ const n=Date.now(); return state.logs.reduce((s,l)=>s+effectOf(l,n),0); }
+
+function phaseOf(l){ const tau=(Date.now()-l.t)/3600000; const onset=l.onset||Math.max(0.15,(l.tPeak||1)*0.3); const tPeak=l.tPeak||1, dur=l.dur||4;
+  if(tau<onset) return {k:'up',t:'Kicking in'};
+  if(tau<tPeak-0.4) return {k:'up',t:'Ramping up'};
+  if(tau<tPeak+0.5) return {k:'peak',t:'At peak'};
+  if(tau<dur) return {k:'fade',t:'Fading / comedown'};
+  return {k:'off',t:'Worn off'}; }
+
+/* ---------- log actions ---------- */
+function logSub(sub,mgOverride){ const t=logTime!=null?logTime:Date.now(); const mg=(mgOverride!=null?mgOverride:sub.mg); state.logs.push({id:'m_'+Date.now().toString(36)+Math.random().toString(36).slice(2,5),name:sub.name,mg:mg,t:t,onset:sub.onset,tPeak:sub.tPeak,dur:sub.dur,lift:sub.lift,ref:sub.ref||sub.mg,cat:sub.cat||'rx'}); query=''; searchOpen=false; logTime=null; save(state); }
+function lastMg(name){ const ls=state.logs.filter(l=>l.name===name); return ls.length?ls[ls.length-1].mg:null; }
+function logByName(name){ let sub=allSubs().find(s=>s.name===name); if(!sub){ const ls=state.logs.filter(l=>l.name===name); sub=ls[ls.length-1]; } if(!sub)return; const def=lastMg(name)||sub.mg; const v=prompt('Your dose for '+name+' (mg):', def); if(v==null)return; const mg=Math.max(0,Math.round(+v)); if(!mg)return; logSub(sub,mg); }
+function removeLog(id){ state.logs=state.logs.filter(l=>String(l.id)!==String(id)); save(state); }
+function addCustom(name,mg){ name=String(name).trim()||'Custom'; mg=Math.max(0,Math.round(+mg||0)); const sub={name:name,mg:mg,onset:0.5,tPeak:2,dur:5,lift:Math.min(30,12+mg*0.05),ref:mg||1,cat:'custom'}; if(!state.custom.some(c=>String(c.name).toLowerCase()===name.toLowerCase()))state.custom.push(sub); logSub(sub); }
+function mostUsed(n){ const f={},last={}; state.logs.forEach(l=>{ f[l.name]=(f[l.name]||0)+1; last[l.name]=l; }); return Object.keys(f).sort((a,b)=>f[b]-f[a]).slice(0,n).map(nm=>last[nm]); }
+function quickList(){ const out=[],seen={}; const add=d=>{ const k=String(d.name).toLowerCase(); if(!seen[k]){seen[k]=1;out.push(d);} }; customs().forEach(add); mostUsed(5).forEach(add); if(out.length<6)SUB_DB.slice(0,6).forEach(add); return out.slice(0,8); }
+function todayLogs(){ const k=dayKey(); return state.logs.filter(l=>dayKey(new Date(l.t))===k).sort((a,b)=>b.t-a.t); }
+
+/* ---------- timeline ---------- */
+function timelineHtml(l){
+  const dur=l.dur||4, tPeak=l.tPeak||1; const tau=(Date.now()-l.t)/3600000;
+  const span=Math.max(dur,tau)+0.5;
+  const peakX=(tPeak/span)*100, nowX=clamp((tau/span)*100,0,100), offX=(dur/span)*100;
+  const fillX=clamp((tau/span)*100,0,100);
+  return '<div class="tl"><div class="tlBar"><div class="tlFill" style="width:'+fillX.toFixed(1)+'%"></div></div>'
+    +'<div class="tlMark" style="left:'+peakX.toFixed(1)+'%"></div>'
+    +'<div class="tlMark" style="left:'+offX.toFixed(1)+'%"></div>'
+    +'<div class="tlNow" style="left:'+nowX.toFixed(1)+'%"></div></div>'
+    +'<div class="tlLabels"><span>'+fmtClock(l.t)+' taken</span><span>peak '+fmtClock(l.t+tPeak*3600000)+'</span><span>off '+fmtClock(l.t+dur*3600000)+'</span></div>';
+}
+function doseHtml(l){
+  const ph=phaseOf(l); const eff=Math.round(effectOf(l,Date.now()));
+  const tau=(Date.now()-l.t)/3600000; const dur=l.dur||4;
+  const leftH=Math.max(0,dur-tau); const leftTxt=leftH>=1?Math.round(leftH)+'h':Math.round(leftH*60)+'m';
+  const info = ph.k==='off' ? 'Worn off · logged '+fmtClock(l.t)+'.' :
+    'Now <b>+'+eff+'</b> focus · '+(ph.k==='fade'?'comedown, ':'')+'~<b>'+leftTxt+'</b> of effect left.';
+  return '<div class="dose"><div class="doseTop"><div class="doseName">'+esc(l.name)+'<small>'+Math.round(l.mg)+'mg</small></div><div class="doseX" data-rm="'+esc(l.id||'')+'" title="Cancel">×</div></div>'
+    +'<span class="dosePhase '+ph.k+'">'+ph.t+'</span>'
+    + timelineHtml(l)
+    +'<div class="doseInfo">'+info+'</div></div>';
+}
+
+/* ---------- search ---------- */
+function resultsHtml(q){ q=(q||'').trim().toLowerCase(); if(!q)return ''; const m=allSubs().filter(d=>String(d.name).toLowerCase().includes(q)).slice(0,8); if(!m.length)return '<div class="noMatch">No match — add it as a custom below ↓</div>'; return m.map(d=>'<div class="result" data-medname="'+esc(d.name)+'"><span class="resultName">'+esc(d.name)+'</span><span class="resultMg">'+d.mg+'mg <em>peak +'+Math.round(d.lift)+'</em></span></div>').join(''); }
+
+/* ---------- render ---------- */
+function render(){
+  state=store();
+  const board=Math.round(boardNow());
+  const logs=todayLogs();
+  const chips=quickList().map(d=>'<button class="chip" data-medname="'+esc(d.name)+'"><span class="chipName">'+esc(d.name)+'</span><span class="chipMg">'+d.mg+'mg <em>+'+Math.round(d.lift)+'</em></span></button>').join('');
+  const searchIcon='<span class="searchIcon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg></span>';
+  const nowSel=logTime==null;
+  const timeVal=(function(){ const d=new Date(logTime!=null?logTime:Date.now()); return String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0'); })();
+
+  const logCard='<div class="card"><p class="eyebrow">Log a dose</p>'
+    +'<div class="timeRow"><span class="timeLab">Taken</span>'
+    +'<button class="nowBtn'+(nowSel?' on':'')+'" id="nowBtn">Just now</button>'
+    +'<span class="timeLab">or at</span><input class="timeIn" id="timeIn" type="time" value="'+timeVal+'"></div>'
+    +'<div class="searchWrap">'+searchIcon+'<input class="searchIn" id="search" type="text" placeholder="Search any med, pouch, nootropic…" value="'+esc(query)+'" autocomplete="off"></div>'
+    +'<div class="results" id="results">'+resultsHtml(query)+'</div>'
+    +'<div class="chips">'+chips+'</div>'
+    +'<div class="addRow"><input class="addName" id="custName" placeholder="Add a custom med/substance…"><input class="addMg" id="custMg" type="number" inputmode="numeric" placeholder="mg"><button class="addBtn" data-addcust="1">Add</button></div>'
+    +'</div>';
+
+  const doseCard = logs.length
+    ? '<div class="card"><p class="eyebrow">Today’s doses</p>'+logs.map(doseHtml).join('')+'</div>'
+    : '<div class="card"><div class="empty">No doses logged today. Tap a med above (now or back-dated) and you’ll see exactly when it peaks, comes down, and wears off.</div></div>';
+
+  document.getElementById('app').innerHTML=
+    '<div class="top"><div><h1 class="htitle">Your <em>meds</em></h1><p class="hsub">onset · peak · comedown · clearance</p></div><a class="backLink" href="peak.html">← Peak</a></div>'
+    +'<div class="card"><div class="hero"><div class="heroV">'+(board>0?'+'+board:'0')+'<small> focus on board</small></div><div class="heroR">'+logs.length+' dose'+(logs.length===1?'':'s')+' today</div></div></div>'
+    + logCard + doseCard
+    +'<p class="foot">Estimated from population pharmacokinetics + your profile — informational only, never dosing advice. Shares data with your Peak tracker.</p>';
+  bindSearch();
+}
+function bindSearch(){ const s=document.getElementById('search'); if(s)s.addEventListener('input',()=>{ query=s.value; const r=document.getElementById('results'); if(r)r.innerHTML=resultsHtml(query); });
+  const t=document.getElementById('timeIn'); if(t)t.addEventListener('change',()=>{ const [h,m]=t.value.split(':').map(Number); if(isFinite(h)){ const d=new Date(); d.setHours(h,m||0,0,0); if(d.getTime()>Date.now())d.setDate(d.getDate()-1); logTime=d.getTime(); render(); } });
+}
+document.addEventListener('click',e=>{
+  const md=e.target.closest('[data-medname]'); if(md){ logByName(md.dataset.medname); return; }
+  const rm=e.target.closest('[data-rm]'); if(rm){ removeLog(rm.dataset.rm); return; }
+  const ac=e.target.closest('[data-addcust]'); if(ac){ const n=document.getElementById('custName'),m=document.getElementById('custMg'); const mg=Math.round(+((m&&m.value)||0)); if(!mg){ alert('Enter the dose in mg.'); return; } addCustom((n&&n.value)||'Custom',mg); return; }
+  if(e.target.closest('#nowBtn')){ logTime=null; render(); return; }
+});
+
+/* live ticking so phases/effect update */
+setInterval(()=>{ if(state.logs.length) render(); }, 60000);
+
+(function(){ const d=document.getElementById('dust'); if(!d)return; const pos=[[12,20],[30,60],[48,16],[64,72],[78,32],[88,55],[20,84],[54,42],[70,88],[84,12]]; d.innerHTML=pos.map((p,i)=>'<i style="left:'+p[0]+'%;top:'+p[1]+'%;animation-delay:'+(i*0.6)+'s"></i>').join(''); })();
+render();
+(async function(){ if(!window.PatronDB||!PatronDB.isCloud())return; try{ const cs=await PatronDB.get('peakmeds'); if(cs&&Array.isArray(cs.logs)){ const seen={}; const all=cs.logs.concat(state.logs); const merged=[]; all.forEach(l=>{ const k=l.id||(l.t+'_'+l.name); if(!seen[k]){seen[k]=1;merged.push(l);} }); merged.sort((a,b)=>a.t-b.t); state={logs:merged,custom:(state.custom.length?state.custom:(cs.custom||[]))}; try{localStorage.setItem(LS,JSON.stringify(state));}catch(e){} render(); } else { PatronDB.set('peakmeds',state); } }catch(e){} })();
+</script>
+<script src="brand.js?v=16"></script>
+</body>
+</html>
